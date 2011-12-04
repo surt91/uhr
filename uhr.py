@@ -20,10 +20,10 @@ class Uhr():
         self.c.redraw.emit()
 
     def uhr_binary(self, x):
-        return "todo"
+        return "  {1:04b}\n{2:06b}\n{3:06b}".format((x//86400),(x//3600)%24,(x//60)%60,x%60)
 
     def uhr_digital(self, x):
-        return "{1:02d}:{1:02d}:{2:02d}:{3:02d}".format((x//86400),(x//3600)%24,(x//60)%60,x%60)
+        return "{0:02d}:{1:02d}:{2:02d}:{3:02d}".format((x//86400),(x//3600)%24,(x//60)%60,x%60)
 
     def toggleBinary(self):
         if self.binary:
