@@ -8,28 +8,27 @@ class Communicate(QtCore.QObject):
     redraw = QtCore.pyqtSignal()
 
 class Uhr():
-    #~ def __init__(self):
-        #~ pass
-
     def uhr_reset(self):
-        self.x = 0
+        self.iSeconds = 0
         self.c.redraw.emit()
 
     def _time_update(self):
-        self.x += 1
+        self.iSeconds += 1
         self.c.redraw.emit()
 
     def uhr_binary(self, x):
-        return "  {1:04b}\n{2:06b}\n{3:06b}".format((x//86400),(x//3600)%24,(x//60)%60,x%60)
+        return "<pre>  {1:04b}\n{2:06b}\n{3:06b}</pre>".format((x//86400),(x//3600)%24,(x//60)%60,x%60)
 
     def uhr_digital(self, x):
         return "{0:02d}:{1:02d}:{2:02d}:{3:02d}".format((x//86400),(x//3600)%24,(x//60)%60,x%60)
 
     def toggleBinary(self):
-        if self.binary:
-            self.binary = False
+        if self.bBinary:
+            self.bBinary = False
+            self.sZeitformat = "dd:hh:mm:ss"
         else:
-            self.binary = True
+            self.bBinary = True
+            self.sZeitformat = "<pre>  hhhh\nmmmmmm\nssssss<\pre>"
         self.c.redraw.emit()
 
 
@@ -40,23 +39,22 @@ class Stoppuhr(Uhr,QtGui.QWidget):
         self.c = Communicate()
         self.c.redraw.connect(self.uhr_draw)
 
-        self.binary = False
+        self.bBinary = False
+        self.sZeitformat = "dd:hh:mm:ss"
 
         self.initUI()
 
     def initUI(self):
-        QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
-
         self.setToolTip('Dies ist eine Stoppuhr')
 
         # Timer
-        self.x = 0
+        self.iSeconds = 0
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self._time_update)
 
         # Anzeige
-        self.anzeige = QtGui.QLabel('0000:00:00', self)
-        self.anzeige.setToolTip('Zeitformat: hhhh:mm:ss')
+        self.anzeige = QtGui.QLabel('00:00:00:00', self)
+        self.anzeige.setToolTip(self.sZeitformat)
 
         #Start- und Stoppknopf
         self.btn = QtGui.QPushButton('&Start!', self)
@@ -77,7 +75,6 @@ class Stoppuhr(Uhr,QtGui.QWidget):
         hbox.addWidget(self.btn_reset)
 
         self.setLayout(hbox)
-        #~ self.setCentralWidget(hbox)
 
         self.show()
 
@@ -92,11 +89,12 @@ class Stoppuhr(Uhr,QtGui.QWidget):
             self.btn_reset.setDisabled(False)
 
     def uhr_draw(self):
-        if self.binary:
-            zeit = self.uhr_binary(self.x)
+        if self.bBinary:
+            sZeit = self.uhr_binary(self.iSeconds)
         else:
-            zeit = self.uhr_digital(self.x)
-        self.anzeige.setText(zeit)
+            sZeit = self.uhr_digital(self.iSeconds)
+        self.anzeige.setText(sZeit)
+        self.anzeige.setToolTip(self.sZeitformat)
 
 class UhrWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -132,7 +130,6 @@ class UhrWindow(QtGui.QMainWindow):
 
 def main():
     app = QtGui.QApplication(sys.argv)
-    #~ ex = Stoppuhr()
     ex = UhrWindow()
     sys.exit(app.exec_())
 
