@@ -68,7 +68,7 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setMinimumSize(100,50)
+        self.setMinimumSize(100,100)
 
         self.show()
 
@@ -76,7 +76,12 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
         self.update()
 
     def paintEvent(self, event):
+        size = min(self.height(), self.width())
+        self.resize(size,size)
+
         paint = QtGui.QPainter(self)
+        paint.setPen(QtGui.QColor(255, 255, 255))
+        paint.setFont(QtGui.QFont('Monospace'))
         paint.setRenderHint(QtGui.QPainter.Antialiasing)
         paint.eraseRect(event.rect())
         self.drawZeit(paint, event)
@@ -87,6 +92,7 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
 class AnalogUhrAnzeige(UhrAnzeige):
     # TODO: drehende Zahnräder hinter Loch in Uhrblatt
     #~ import math
+
     def __init__(self):
         super().__init__()
 
@@ -160,8 +166,6 @@ class DigitalUhrAnzeige(UhrAnzeige):
         self.on_redraw()
 
     def drawZeit(self, paint, event):
-        paint.setPen(QtGui.QColor(255, 255, 255))
-        paint.setFont(QtGui.QFont('Monospace', 10))
         paint.drawText(event.rect(), QtCore.Qt.AlignCenter, self.sText)
 
     def digital(self, x):
@@ -180,8 +184,6 @@ class BinaryUhrAnzeige(UhrAnzeige):
         self.on_redraw()
 
     def drawZeit(self, paint, event):
-        paint.setPen(QtGui.QColor(255, 255, 255))
-        paint.setFont(QtGui.QFont('Monospace', 10))
         paint.drawText(event.rect(), QtCore.Qt.AlignCenter, self.sText)
 
     def binary(self, x):
@@ -229,7 +231,6 @@ class Stoppuhr(Uhr, QtGui.QWidget):
             self.btn.setText("Stopp!")
             self.btn_reset.setDisabled(True)
         else:
-            #~ self.timer.stop()
             self.stopUhr()
             self.btn.setText("Start!")
             self.btn_reset.setDisabled(False)
@@ -271,6 +272,7 @@ class UhrWindow(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon('icon.png'))
 
         self.setUhrzeit()
+
         self.setCentralWidget(self.disp)
 
         # Menüeinträge
@@ -298,7 +300,7 @@ class UhrWindow(QtGui.QMainWindow):
 
         iconUhrzeit = QtGui.QIcon('uhrzeit.png')
         setUhrzeitAction = QtGui.QAction(iconAnalog, '&Uhr', self)
-        setUhrzeitAction.setShortcut('s')
+        setUhrzeitAction.setShortcut('u')
         setUhrzeitAction.setStatusTip('Uhrzeit')
         setUhrzeitAction.triggered.connect(self.setUhrzeit)
 
@@ -320,18 +322,20 @@ class UhrWindow(QtGui.QMainWindow):
         self.move(qr.topLeft())
 
     def setStoppuhr(self):
-        try:
-            del self.disp
-        except:
-            pass
-        self.disp = Stoppuhr()
+        #~ try:
+            #~ del self.disp
+        #~ except:
+            #~ pass
+        self = Stoppuhr()
+        self.setCentralWidget(self.disp)
 
     def setUhrzeit(self):
-        try:
-            del self.disp
-        except:
-            pass
+        #~ try:
+            #~ del self.disp
+        #~ except:
+            #~ pass
         self.disp = Uhrzeit()
+        #~ self.setCentralWidget(self.disp)
 
 def main():
     app = QtGui.QApplication(sys.argv)
