@@ -31,6 +31,7 @@ class Uhr():
         self.iSeconds = x
 
     def on_update(self):
+        #~ self.update()
         pass
 
 class UhrAnzeige(Uhr, QtGui.QWidget):
@@ -46,14 +47,16 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
 
     def paintEvent(self, event):
         paint = QtGui.QPainter(self)
-        paint.eraseRect(self.geometry())
-        paint.setPen(QtGui.QColor(255, 255, 255))
-        paint.setFont(QtGui.QFont('Monospace', 10))
-        paint.drawText(event.rect(), QtCore.Qt.AlignCenter, self.sText)
+        paint.setRenderHint(QtGui.QPainter.Antialiasing)
+        paint.eraseRect(event.rect())
+        self.drawZeit(paint, event)
+
+    def drawZeit(self, paint, event):
+        pass
 
 class AnalogUhrAnzeige(UhrAnzeige):
     # TODO: drehende Zahnräder hinter Loch in Uhrblatt
-    import math
+    #~ import math
     def __init__(self):
         super().__init__()
 
@@ -63,20 +66,57 @@ class AnalogUhrAnzeige(UhrAnzeige):
                         dick*24/2Pi  -> Stunden")
 
     def redraw(self, iSeconds):
-        #~ sZeit = self.digital(iSeconds)
-        #~ self.anzeige.setText(sZeit)
-        self.update()
-        pass
+        self.iSeconds = iSeconds
+        self.on_redraw()
+
+    def drawZeit(self, paint, event):
+        h,m,s = self.analog(self.iSeconds)
+
+        bgColor = QtGui.QColor(255, 255, 255)
+
+        startSAngle = - s -16 + 90*16
+        spanSAngle =  32
+        zeigerSColor = QtGui.QColor(255, 0, 0)
+
+        startMAngle = - m - 32 + 90*16
+        spanMAngle =  64
+        zeigerMColor = QtGui.QColor(30, 30, 30)
+
+        startHAngle = - h - 128 + 90*16
+        spanHAngle =  256
+        zeigerHColor = QtGui.QColor(0, 0, 0)
+
+        breit = self.width()
+        hoch  = self.height()
+
+        paint.setBrush(QtGui.QBrush(QtCore.Qt.SolidPattern))
+
+        paint.setPen(bgColor)
+        paint.setBrush(bgColor)
+        paint.drawPie(0,0, breit, hoch, 0, 16 * 360)
+
+        paint.setPen(zeigerHColor)
+        paint.setBrush(zeigerHColor)
+        paint.drawPie(breit/6, hoch/6, breit*2/3, hoch*2/3, startHAngle, spanHAngle)
+
+        paint.setPen(zeigerMColor)
+        paint.setBrush(zeigerMColor)
+        paint.drawPie(0,0, breit, hoch, startMAngle, spanMAngle)
+
+        paint.setPen(zeigerSColor)
+        paint.setBrush(zeigerSColor)
+        paint.drawPie(0, 0, breit, hoch, startSAngle, spanSAngle)
 
     def analog(self, x):
         """
-            Nimmt Sekunden engegen und gibt eine Liste der Winkel aus:
+            Nimmt Sekunden engegen und gibt ein Tupel der Winkel aus:
             Erst Stunden, dann Mintuen, dann Sekunden Winkel
+            Dabei sind die Winkel in 16tel Winkelmaß angegeben
         """
-        s = (x%60)/60. * 2 * math.pi
-        m = ((x/60)%60)/60. * 2 * math.pi
-        h = ((x/3600)%24)/24. * 2 * math.pi
-        return [h,m,s]
+        s = (x%60)/60. * 360 *16
+        m = ((x/60.)%60)/60. * 360 *16
+        h = ((x/3600.)%24)/24. * 360 *16
+        return h,m,s
 
 class DigitalUhrAnzeige(UhrAnzeige):
     def __init__(self):
@@ -88,6 +128,11 @@ class DigitalUhrAnzeige(UhrAnzeige):
         sZeit = self.digital(iSeconds)
         self.sText = sZeit
         self.on_redraw()
+
+    def drawZeit(self, paint, event):
+        paint.setPen(QtGui.QColor(255, 255, 255))
+        paint.setFont(QtGui.QFont('Monospace', 10))
+        paint.drawText(event.rect(), QtCore.Qt.AlignCenter, self.sText)
 
     def digital(self, x):
         return "{0:02d}:{1:02d}:{2:02d}"\
@@ -103,6 +148,11 @@ class BinaryUhrAnzeige(UhrAnzeige):
         sZeit = self.binary(iSeconds)
         self.sText = sZeit
         self.on_redraw()
+
+    def drawZeit(self, paint, event):
+        paint.setPen(QtGui.QColor(255, 255, 255))
+        paint.setFont(QtGui.QFont('Monospace', 10))
+        paint.drawText(event.rect(), QtCore.Qt.AlignCenter, self.sText)
 
     def binary(self, x):
         return "  {0:04b}\n{1:06b}\n{2:06b}"\
