@@ -40,7 +40,7 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
         self.anzeige = QtGui.QLabel('', self)
 
     def redraw(self, iSeconds):
-        self.iSeconds = iSeconds
+        pass
 
 class AnalogUhrAnzeige(UhrAnzeige):
     # TODO: drehende Zahnräder hinter Loch in Uhrblatt
@@ -58,7 +58,7 @@ class DigitalUhrAnzeige(UhrAnzeige):
 
     def digital(self, x):
         return "{0:02d}:{1:02d}:{2:02d}"\
-                        .format((x//3600)%24,(x//60)%60,x%60)
+                                   .format((x//3600)%24,(x//60)%60,x%60)
 
 class BinaryUhrAnzeige(UhrAnzeige):
     def __init__(self):
@@ -67,7 +67,6 @@ class BinaryUhrAnzeige(UhrAnzeige):
         self.anzeige.setToolTip("<pre>  hhhh\nmmmmmm\nssssss<\pre>")
 
     def redraw(self, iSeconds):
-        super().redraw(iSeconds)
         sZeit = self.binary(iSeconds)
         self.anzeige.setText(sZeit)
 
