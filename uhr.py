@@ -50,14 +50,14 @@ class DigitalUhrAnzeige(UhrAnzeige):
     def __init__(self):
         super().__init__()
 
-        self.anzeige.setToolTip("dd:hh:mm:ss")
+        self.anzeige.setToolTip("hh:mm:ss")
 
     def redraw(self, iSeconds):
         sZeit = self.digital(iSeconds)
         self.anzeige.setText(sZeit)
 
     def digital(self, x):
-        return "{1:02d}:{2:02d}:{3:02d}"\
+        return "{0:02d}:{1:02d}:{2:02d}"\
                         .format((x//3600)%24,(x//60)%60,x%60)
 
 class BinaryUhrAnzeige(UhrAnzeige):
