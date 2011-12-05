@@ -12,11 +12,11 @@ class Uhr():
         super().__init__()
 
         self.c = Communicate()
-        self.c.redraw.connect(self.uhr_draw)
+        self.c.redraw.connect(self.on_update)
 
         # Timer
         self.iSeconds = 0
-        self.timer = QtCore.QTimer(self)
+        self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self._time_update)
 
     def uhr_reset(self):
@@ -30,47 +30,57 @@ class Uhr():
     def uhrSetTime(self, x):
         self.iSeconds = x
 
-    def setDigital(self):
-        self.bBinary = False
-        self.sZeitformat = "dd:hh:mm:ss"
-        self.c.redraw.emit()
-
-    def setBinary(self):
-        self.bBinary = True
-        self.sZeitformat = "<pre>  dddd\n  hhhh\nmmmmmm\nssssss<\pre>"
-        self.c.redraw.emit()
+    def on_update(self):
+        pass
 
 class AnalogUhr():
     pass
 
-class TextUhr(Uhr, QtGui.QWidget):
+class DigitalUhrAnzeige(Uhr, QtGui.QWidget):
     def __init__(self):
         super().__init__()
 
         # Anzeige
         self.anzeige = QtGui.QLabel('', self)
-        self.setDigital()
 
-    def uhr_draw(self):
-        if self.bBinary:
-            sZeit = self.uhr_binary(self.iSeconds)
-        else:
-            sZeit = self.uhr_digital(self.iSeconds)
+        self.anzeige.setToolTip("dd:hh:mm:ss")
+        self.redraw(0)
+
+    def redraw(self, iSeconds):
+        self.iSeconds = iSeconds
+        sZeit = self.digital(iSeconds)
         self.anzeige.setText(sZeit)
-        self.anzeige.setToolTip(self.sZeitformat)
 
-    def uhr_binary(self, x):
-        return "<pre>  {0:04b}\n  {1:04b}\n{2:06b}\n{3:06b}</pre>"\
-                        .format((x//86400),(x//3600)%24,(x//60)%60,x%60)
-
-    def uhr_digital(self, x):
+    def digital(self, x):
         return "{0:02d}:{1:02d}:{2:02d}:{3:02d}"\
                         .format((x//86400),(x//3600)%24,(x//60)%60,x%60)
 
-class Stoppuhr(TextUhr):
+
+class BinaryUhrAnzeige(Uhr, QtGui.QWidget):
     def __init__(self):
         super().__init__()
 
+        # Anzeige
+        self.anzeige = QtGui.QLabel('', self)
+
+        self.anzeige.setToolTip("dd:hh:mm:ss")
+        self.redraw(0)
+
+    def redraw(self, iSeconds):
+        self.iSeconds = iSeconds
+        sZeit = self.binary(iSeconds)
+        self.anzeige.setText(sZeit)
+        self.anzeige.setToolTip("<pre>  dddd\n  hhhh\nmmmmmm\nssssss<\pre>")
+
+    def binary(self, x):
+        return "<pre>  {0:04b}\n  {1:04b}\n{2:06b}\n{3:06b}</pre>"\
+                        .format((x//86400),(x//3600)%24,(x//60)%60,x%60)
+
+class Stoppuhr(Uhr, QtGui.QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.a = DigitalUhrAnzeige()
         self.initUI()
 
     def initUI(self):
@@ -89,7 +99,7 @@ class Stoppuhr(TextUhr):
 
         # Layout
         hbox = QtGui.QHBoxLayout()
-        hbox.addWidget(self.anzeige)
+        hbox.addWidget(self.a.anzeige)
         hbox.addStretch(1)
         hbox.addWidget(self.btn)
         hbox.addWidget(self.btn_reset)
@@ -97,6 +107,20 @@ class Stoppuhr(TextUhr):
         self.setLayout(hbox)
 
         self.show()
+
+    def on_update(self):
+        self.a.redraw(self.iSeconds)
+
+    def setDigital(self):
+        pass
+
+    def setBinary(self):
+        pass
+
+    def setAnalog(self):
+        pass
+
+
 
     def uhr_toggle(self):
         if self.btn.isChecked():
@@ -134,11 +158,19 @@ class UhrWindow(QtGui.QMainWindow):
         setDigitalAction.setShortcut('d')
         setDigitalAction.setStatusTip('Digital Uhr')
         setDigitalAction.triggered.connect(stoppuhr.setDigital)
+        iconAnalog = QtGui.QIcon('analog.png')
+        setAnalogAction = QtGui.QAction(iconAnalog, '&Analog', self)
+        setAnalogAction.setShortcut('a')
+        setAnalogAction.setStatusTip('Analoge Uhr')
+        setAnalogAction.triggered.connect(stoppuhr.setAnalog)
 
         menubar = self.menuBar()
-        menu = menubar.addMenu('Modus')
-        menu.addAction(setDigitalAction)
-        menu.addAction(setBinaryAction)
+        menuFkt = menubar.addMenu('Funktion')
+        menuDar = menubar.addMenu('Darstellung')
+        menuDar.addAction(setDigitalAction)
+        menuDar.addAction(setBinaryAction)
+        #~ menuDar.addSeperator()
+        menuDar.addAction(setAnalogAction)
 
         self.show()
 
