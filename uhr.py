@@ -27,12 +27,42 @@ class Uhr():
         self.iSeconds += 1
         self.c.redraw.emit()
 
-    def uhrSetTime(self, x):
+    def setTime(self, x):
         self.iSeconds = x
 
-    def on_update(self):
+    def startUhr(self):
+        self.timer.start(1000)
+
+    def stopUhr(self):
+        self.timer.stop()
+
+    #~ def on_update(self):
         #~ self.update()
-        pass
+        #~ pass
+
+    def on_update(self):
+        self.a.redraw(self.iSeconds)
+
+    def setDigital(self):
+        self.display.removeWidget(self.a)
+        del self.a
+        self.a = DigitalUhrAnzeige()
+        self.display.addWidget(self.a)
+        self.c.redraw.emit()
+
+    def setBinary(self):
+        self.display.removeWidget(self.a)
+        del self.a
+        self.a = BinaryUhrAnzeige()
+        self.display.addWidget(self.a)
+        self.c.redraw.emit()
+
+    def setAnalog(self):
+        self.display.removeWidget(self.a)
+        del self.a
+        self.a = AnalogUhrAnzeige()
+        self.display.addWidget(self.a)
+        self.c.redraw.emit()
 
 class UhrAnzeige(Uhr, QtGui.QWidget):
     def __init__(self):
@@ -156,7 +186,7 @@ class BinaryUhrAnzeige(UhrAnzeige):
 
     def binary(self, x):
         return "  {0:04b}\n{1:06b}\n{2:06b}"\
-                        .format((x//3600)%24,(x//60)%60,x%60)
+                                   .format((x//3600)%24,(x//60)%60,x%60)
 
 class Stoppuhr(Uhr, QtGui.QWidget):
     def __init__(self):
@@ -193,39 +223,40 @@ class Stoppuhr(Uhr, QtGui.QWidget):
 
         self.show()
 
-    def on_update(self):
-        self.a.redraw(self.iSeconds)
-
-    def setDigital(self):
-        self.display.removeWidget(self.a)
-        del self.a
-        self.a = DigitalUhrAnzeige()
-        self.display.addWidget(self.a)
-        self.c.redraw.emit()
-
-    def setBinary(self):
-        self.display.removeWidget(self.a)
-        del self.a
-        self.a = BinaryUhrAnzeige()
-        self.display.addWidget(self.a)
-        self.c.redraw.emit()
-
-    def setAnalog(self):
-        self.display.removeWidget(self.a)
-        del self.a
-        self.a = AnalogUhrAnzeige()
-        self.display.addWidget(self.a)
-        self.c.redraw.emit()
-
     def uhr_toggle(self):
         if self.btn.isChecked():
-            self.timer.start(1000)
+            self.startUhr()
             self.btn.setText("Stopp!")
             self.btn_reset.setDisabled(True)
         else:
-            self.timer.stop()
+            #~ self.timer.stop()
+            self.stopUhr()
             self.btn.setText("Start!")
             self.btn_reset.setDisabled(False)
+
+class Uhrzeit(Uhr, QtGui.QWidget):
+    def __init__(self):
+        import time
+        super().__init__()
+
+        self.a = DigitalUhrAnzeige()
+        self.a.redraw(0)
+        self.startUhr()
+        now=time.localtime()
+        now = now[3]*3600+now[4]*60+now[5]
+        print(now)
+        self.setTime(now)
+        self.initUI()
+
+    def initUI(self):
+        self.setToolTip('Dies ist eine Uhr')
+
+        # Layout
+        self.display = QtGui.QHBoxLayout()
+        self.display.addWidget(self.a)
+        self.setLayout(self.display)
+
+        self.show()
 
 class UhrWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -239,25 +270,37 @@ class UhrWindow(QtGui.QMainWindow):
         self.setWindowTitle('Stoppuhr')
         self.setWindowIcon(QtGui.QIcon('icon.png'))
 
-        stoppuhr = Stoppuhr()
-        self.setCentralWidget(stoppuhr)
+        self.setUhrzeit()
+        self.setCentralWidget(self.disp)
 
         # Menüeinträge
         iconBinary = QtGui.QIcon('binary.png')
         setBinaryAction = QtGui.QAction(iconBinary, '&Binary', self)
         setBinaryAction.setShortcut('b')
         setBinaryAction.setStatusTip('Binär Uhr')
-        setBinaryAction.triggered.connect(stoppuhr.setBinary)
+        setBinaryAction.triggered.connect(self.disp.setBinary)
         iconDigital = QtGui.QIcon('digital.png')
         setDigitalAction = QtGui.QAction(iconDigital, '&Digital', self)
         setDigitalAction.setShortcut('d')
         setDigitalAction.setStatusTip('Digital Uhr')
-        setDigitalAction.triggered.connect(stoppuhr.setDigital)
+        setDigitalAction.triggered.connect(self.disp.setDigital)
         iconAnalog = QtGui.QIcon('analog.png')
         setAnalogAction = QtGui.QAction(iconAnalog, '&Analog', self)
         setAnalogAction.setShortcut('a')
         setAnalogAction.setStatusTip('Analoge Uhr')
-        setAnalogAction.triggered.connect(stoppuhr.setAnalog)
+        setAnalogAction.triggered.connect(self.disp.setAnalog)
+
+        iconStoppuhr = QtGui.QIcon('stoppuhr.png')
+        setStoppuhrAction = QtGui.QAction(iconAnalog, '&Stoppuhr', self)
+        setStoppuhrAction.setShortcut('s')
+        setStoppuhrAction.setStatusTip('Stoppuhr')
+        setStoppuhrAction.triggered.connect(self.setStoppuhr)
+
+        iconUhrzeit = QtGui.QIcon('uhrzeit.png')
+        setUhrzeitAction = QtGui.QAction(iconAnalog, '&Uhr', self)
+        setUhrzeitAction.setShortcut('s')
+        setUhrzeitAction.setStatusTip('Uhrzeit')
+        setUhrzeitAction.triggered.connect(self.setUhrzeit)
 
         menubar = self.menuBar()
         menuFkt = menubar.addMenu('Funktion')
@@ -265,6 +308,8 @@ class UhrWindow(QtGui.QMainWindow):
         menuDar.addAction(setDigitalAction)
         menuDar.addAction(setBinaryAction)
         menuDar.addAction(setAnalogAction)
+        menuFkt.addAction(setUhrzeitAction)
+        menuFkt.addAction(setStoppuhrAction)
 
         self.show()
 
@@ -273,6 +318,20 @@ class UhrWindow(QtGui.QMainWindow):
         cp = QtGui.QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+
+    def setStoppuhr(self):
+        try:
+            del self.disp
+        except:
+            pass
+        self.disp = Stoppuhr()
+
+    def setUhrzeit(self):
+        try:
+            del self.disp
+        except:
+            pass
+        self.disp = Uhrzeit()
 
 def main():
     app = QtGui.QApplication(sys.argv)
