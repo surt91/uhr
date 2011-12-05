@@ -33,53 +33,54 @@ class Uhr():
     def on_update(self):
         pass
 
-class AnalogUhr():
-    pass
-
-class DigitalUhrAnzeige(Uhr, QtGui.QWidget):
+class UhrAnzeige(Uhr, QtGui.QWidget):
     def __init__(self):
         super().__init__()
 
-        # Anzeige
         self.anzeige = QtGui.QLabel('', self)
-
-        self.anzeige.setToolTip("dd:hh:mm:ss")
-        self.redraw(0)
 
     def redraw(self, iSeconds):
         self.iSeconds = iSeconds
+
+class AnalogUhrAnzeige(UhrAnzeige):
+    # TODO: drehende Zahnräder hinter Loch in Uhrblatt
+    pass
+
+class DigitalUhrAnzeige(UhrAnzeige):
+    def __init__(self):
+        super().__init__()
+
+        self.anzeige.setToolTip("dd:hh:mm:ss")
+
+    def redraw(self, iSeconds):
         sZeit = self.digital(iSeconds)
         self.anzeige.setText(sZeit)
 
     def digital(self, x):
-        return "{0:02d}:{1:02d}:{2:02d}:{3:02d}"\
-                        .format((x//86400),(x//3600)%24,(x//60)%60,x%60)
+        return "{1:02d}:{2:02d}:{3:02d}"\
+                        .format((x//3600)%24,(x//60)%60,x%60)
 
-
-class BinaryUhrAnzeige(Uhr, QtGui.QWidget):
+class BinaryUhrAnzeige(UhrAnzeige):
     def __init__(self):
         super().__init__()
 
-        # Anzeige
-        self.anzeige = QtGui.QLabel('', self)
-
-        self.anzeige.setToolTip("<pre>  dddd\n  hhhh\nmmmmmm\nssssss<\pre>")
-        self.redraw(0)
+        self.anzeige.setToolTip("<pre>  hhhh\nmmmmmm\nssssss<\pre>")
 
     def redraw(self, iSeconds):
-        self.iSeconds = iSeconds
+        super().redraw(iSeconds)
         sZeit = self.binary(iSeconds)
         self.anzeige.setText(sZeit)
 
     def binary(self, x):
-        return "<pre>  {0:04b}\n  {1:04b}\n{2:06b}\n{3:06b}</pre>"\
-                        .format((x//86400),(x//3600)%24,(x//60)%60,x%60)
+        return "<pre>  {0:04b}\n{1:06b}\n{2:06b}</pre>"\
+                        .format((x//3600)%24,(x//60)%60,x%60)
 
 class Stoppuhr(Uhr, QtGui.QWidget):
     def __init__(self):
         super().__init__()
 
         self.a = DigitalUhrAnzeige()
+        self.a.redraw(0)
         self.initUI()
 
     def initUI(self):
@@ -112,19 +113,21 @@ class Stoppuhr(Uhr, QtGui.QWidget):
     def on_update(self):
         self.a.redraw(self.iSeconds)
 
-
-    #TODO: alte zahlen löschen
     def setDigital(self):
+        self.a.anzeige.setText("")
         self.display.removeWidget(self.a.anzeige)
         del self.a
         self.a = DigitalUhrAnzeige()
         self.display.addWidget(self.a.anzeige)
+        self.a.redraw(self.iSeconds)
 
     def setBinary(self):
+        self.a.anzeige.setText("")
         self.display.removeWidget(self.a.anzeige)
         del self.a
         self.a = BinaryUhrAnzeige()
         self.display.addWidget(self.a.anzeige)
+        self.a.redraw(self.iSeconds)
 
     def setAnalog(self):
         pass
@@ -176,7 +179,6 @@ class UhrWindow(QtGui.QMainWindow):
         menuDar = menubar.addMenu('Darstellung')
         menuDar.addAction(setDigitalAction)
         menuDar.addAction(setBinaryAction)
-        #~ menuDar.addSeperator()
         menuDar.addAction(setAnalogAction)
 
         self.show()
