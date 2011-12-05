@@ -37,24 +37,57 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
     def __init__(self):
         super().__init__()
 
-        self.anzeige = QtGui.QLabel('', self)
+        self.setMinimumSize(100,50)
 
-    def redraw(self, iSeconds):
-        pass
+        self.show()
+
+    def on_redraw(self):
+        self.update()
+
+    def paintEvent(self, event):
+        paint = QtGui.QPainter(self)
+        paint.eraseRect(self.geometry())
+        paint.setPen(QtGui.QColor(255, 255, 255))
+        paint.setFont(QtGui.QFont('Monospace', 10))
+        paint.drawText(event.rect(), QtCore.Qt.AlignCenter, self.sText)
 
 class AnalogUhrAnzeige(UhrAnzeige):
     # TODO: drehende Zahnräder hinter Loch in Uhrblatt
-    pass
+    import math
+    def __init__(self):
+        super().__init__()
+
+        self.setToolTip("Die Winkel der Zeiger:\n\
+                        rot*60/2Pi   -> Sekunden\n\
+                        klein*60/2Pi -> Minuten\n\
+                        dick*24/2Pi  -> Stunden")
+
+    def redraw(self, iSeconds):
+        #~ sZeit = self.digital(iSeconds)
+        #~ self.anzeige.setText(sZeit)
+        self.update()
+        pass
+
+    def analog(self, x):
+        """
+            Nimmt Sekunden engegen und gibt eine Liste der Winkel aus:
+            Erst Stunden, dann Mintuen, dann Sekunden Winkel
+        """
+        s = (x%60)/60. * 2 * math.pi
+        m = ((x/60)%60)/60. * 2 * math.pi
+        h = ((x/3600)%24)/24. * 2 * math.pi
+        return [h,m,s]
 
 class DigitalUhrAnzeige(UhrAnzeige):
     def __init__(self):
         super().__init__()
 
-        self.anzeige.setToolTip("hh:mm:ss")
+        self.setToolTip("hh:mm:ss")
 
     def redraw(self, iSeconds):
         sZeit = self.digital(iSeconds)
-        self.anzeige.setText(sZeit)
+        self.sText = sZeit
+        self.on_redraw()
 
     def digital(self, x):
         return "{0:02d}:{1:02d}:{2:02d}"\
@@ -64,14 +97,15 @@ class BinaryUhrAnzeige(UhrAnzeige):
     def __init__(self):
         super().__init__()
 
-        self.anzeige.setToolTip("<pre>  hhhh\nmmmmmm\nssssss<\pre>")
+        self.setToolTip("<pre>  hhhh\nmmmmmm\nssssss<\pre>")
 
     def redraw(self, iSeconds):
         sZeit = self.binary(iSeconds)
-        self.anzeige.setText(sZeit)
+        self.sText = sZeit
+        self.on_redraw()
 
     def binary(self, x):
-        return "<pre>  {0:04b}\n{1:06b}\n{2:06b}</pre>"\
+        return "  {0:04b}\n{1:06b}\n{2:06b}"\
                         .format((x//3600)%24,(x//60)%60,x%60)
 
 class Stoppuhr(Uhr, QtGui.QWidget):
@@ -98,12 +132,12 @@ class Stoppuhr(Uhr, QtGui.QWidget):
 
         # Layout
         self.display = QtGui.QHBoxLayout()
-        self.display.addWidget(self.a.anzeige)
+        self.display.addWidget(self.a)
         self.layout = QtGui.QHBoxLayout()
         self.layout.addLayout(self.display)
-        self.layout.addStretch(1)
         self.layout.addWidget(self.btn)
         self.layout.addWidget(self.btn_reset)
+        self.layout.addStretch(1)
 
         self.setLayout(self.layout)
 
@@ -113,23 +147,25 @@ class Stoppuhr(Uhr, QtGui.QWidget):
         self.a.redraw(self.iSeconds)
 
     def setDigital(self):
-        self.a.anzeige.setText("")
-        self.display.removeWidget(self.a.anzeige)
+        self.display.removeWidget(self.a)
         del self.a
         self.a = DigitalUhrAnzeige()
-        self.display.addWidget(self.a.anzeige)
-        self.a.redraw(self.iSeconds)
+        self.display.addWidget(self.a)
+        self.c.redraw.emit()
 
     def setBinary(self):
-        self.a.anzeige.setText("")
-        self.display.removeWidget(self.a.anzeige)
+        self.display.removeWidget(self.a)
         del self.a
         self.a = BinaryUhrAnzeige()
-        self.display.addWidget(self.a.anzeige)
-        self.a.redraw(self.iSeconds)
+        self.display.addWidget(self.a)
+        self.c.redraw.emit()
 
     def setAnalog(self):
-        pass
+        self.display.removeWidget(self.a)
+        del self.a
+        self.a = AnalogUhrAnzeige()
+        self.display.addWidget(self.a)
+        self.c.redraw.emit()
 
     def uhr_toggle(self):
         if self.btn.isChecked():
