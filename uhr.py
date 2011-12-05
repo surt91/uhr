@@ -17,7 +17,7 @@ class Uhr():
         self.c.redraw.emit()
 
     def uhr_binary(self, x):
-        return "<pre>  {1:04b}\n{2:06b}\n{3:06b}</pre>".format((x//86400),(x//3600)%24,(x//60)%60,x%60)
+        return "<pre>  {0:04b}\n  {1:04b}\n{2:06b}\n{3:06b}</pre>".format((x//86400),(x//3600)%24,(x//60)%60,x%60)
 
     def uhr_digital(self, x):
         return "{0:02d}:{1:02d}:{2:02d}:{3:02d}".format((x//86400),(x//3600)%24,(x//60)%60,x%60)
@@ -28,7 +28,7 @@ class Uhr():
             self.sZeitformat = "dd:hh:mm:ss"
         else:
             self.bBinary = True
-            self.sZeitformat = "<pre>  hhhh\nmmmmmm\nssssss<\pre>"
+            self.sZeitformat = "<pre>  dddd\n  hhhh\nmmmmmm\nssssss<\pre>"
         self.c.redraw.emit()
 
 
