@@ -112,15 +112,15 @@ class Stoppuhr(Uhr, QtGui.QWidget):
         self.a.redraw(self.iSeconds)
 
     def setDigital(self):
-        pass
+        del self.a
+        self.a = DigitalUhrAnzeige()
 
     def setBinary(self):
-        pass
+        del self.a
+        self.a = BinaryUhrAnzeige()
 
     def setAnalog(self):
         pass
-
-
 
     def uhr_toggle(self):
         if self.btn.isChecked():
