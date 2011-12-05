@@ -8,6 +8,17 @@ class Communicate(QtCore.QObject):
     redraw = QtCore.pyqtSignal()
 
 class Uhr():
+    def __init__(self):
+        super().__init__()
+
+        self.c = Communicate()
+        self.c.redraw.connect(self.uhr_draw)
+
+        # Timer
+        self.iSeconds = 0
+        self.timer = QtCore.QTimer(self)
+        self.timer.timeout.connect(self._time_update)
+
     def uhr_reset(self):
         self.iSeconds = 0
         self.c.redraw.emit()
@@ -16,45 +27,54 @@ class Uhr():
         self.iSeconds += 1
         self.c.redraw.emit()
 
-    def uhr_binary(self, x):
-        return "<pre>  {0:04b}\n  {1:04b}\n{2:06b}\n{3:06b}</pre>".format((x//86400),(x//3600)%24,(x//60)%60,x%60)
+    def uhrSetTime(self, x):
+        self.iSeconds = x
 
-    def uhr_digital(self, x):
-        return "{0:02d}:{1:02d}:{2:02d}:{3:02d}".format((x//86400),(x//3600)%24,(x//60)%60,x%60)
-
-    def toggleBinary(self):
-        if self.bBinary:
-            self.bBinary = False
-            self.sZeitformat = "dd:hh:mm:ss"
-        else:
-            self.bBinary = True
-            self.sZeitformat = "<pre>  dddd\n  hhhh\nmmmmmm\nssssss<\pre>"
-        self.c.redraw.emit()
-
-
-class Stoppuhr(Uhr,QtGui.QWidget):
-    def __init__(self):
-        super(Stoppuhr, self).__init__()
-
-        self.c = Communicate()
-        self.c.redraw.connect(self.uhr_draw)
-
+    def setDigital(self):
         self.bBinary = False
         self.sZeitformat = "dd:hh:mm:ss"
+        self.c.redraw.emit()
+
+    def setBinary(self):
+        self.bBinary = True
+        self.sZeitformat = "<pre>  dddd\n  hhhh\nmmmmmm\nssssss<\pre>"
+        self.c.redraw.emit()
+
+class AnalogUhr():
+    pass
+
+class TextUhr(Uhr, QtGui.QWidget):
+    def __init__(self):
+        super().__init__()
+
+        # Anzeige
+        self.anzeige = QtGui.QLabel('', self)
+        self.setDigital()
+
+    def uhr_draw(self):
+        if self.bBinary:
+            sZeit = self.uhr_binary(self.iSeconds)
+        else:
+            sZeit = self.uhr_digital(self.iSeconds)
+        self.anzeige.setText(sZeit)
+        self.anzeige.setToolTip(self.sZeitformat)
+
+    def uhr_binary(self, x):
+        return "<pre>  {0:04b}\n  {1:04b}\n{2:06b}\n{3:06b}</pre>"\
+                        .format((x//86400),(x//3600)%24,(x//60)%60,x%60)
+
+    def uhr_digital(self, x):
+        return "{0:02d}:{1:02d}:{2:02d}:{3:02d}"\
+                        .format((x//86400),(x//3600)%24,(x//60)%60,x%60)
+
+class Stoppuhr(TextUhr):
+    def __init__(self):
+        super().__init__()
 
         self.initUI()
 
     def initUI(self):
         self.setToolTip('Dies ist eine Stoppuhr')
-
-        # Timer
-        self.iSeconds = 0
-        self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(self._time_update)
-
-        # Anzeige
-        self.anzeige = QtGui.QLabel('00:00:00:00', self)
-        self.anzeige.setToolTip(self.sZeitformat)
 
         #Start- und Stoppknopf
         self.btn = QtGui.QPushButton('&Start!', self)
@@ -88,17 +108,9 @@ class Stoppuhr(Uhr,QtGui.QWidget):
             self.btn.setText("Start!")
             self.btn_reset.setDisabled(False)
 
-    def uhr_draw(self):
-        if self.bBinary:
-            sZeit = self.uhr_binary(self.iSeconds)
-        else:
-            sZeit = self.uhr_digital(self.iSeconds)
-        self.anzeige.setText(sZeit)
-        self.anzeige.setToolTip(self.sZeitformat)
-
 class UhrWindow(QtGui.QMainWindow):
     def __init__(self):
-        super(UhrWindow, self).__init__()
+        super().__init__()
 
         self.initUI()
 
@@ -111,14 +123,22 @@ class UhrWindow(QtGui.QMainWindow):
         stoppuhr = Stoppuhr()
         self.setCentralWidget(stoppuhr)
 
-        toggleBinaryAction = QtGui.QAction(QtGui.QIcon('binary.png'), '&Binary', self)
-        toggleBinaryAction.setShortcut('b')
-        toggleBinaryAction.setStatusTip('Schalte Anzeige zwischen binary und digital um')
-        toggleBinaryAction.triggered.connect(stoppuhr.toggleBinary)
+        # Menüeinträge
+        iconBinary = QtGui.QIcon('binary.png')
+        setBinaryAction = QtGui.QAction(iconBinary, '&Binary', self)
+        setBinaryAction.setShortcut('b')
+        setBinaryAction.setStatusTip('Binär Uhr')
+        setBinaryAction.triggered.connect(stoppuhr.setBinary)
+        iconDigital = QtGui.QIcon('digital.png')
+        setDigitalAction = QtGui.QAction(iconDigital, '&Digital', self)
+        setDigitalAction.setShortcut('d')
+        setDigitalAction.setStatusTip('Digital Uhr')
+        setDigitalAction.triggered.connect(stoppuhr.setDigital)
 
         menubar = self.menuBar()
         menu = menubar.addMenu('Modus')
-        menu.addAction(toggleBinaryAction)
+        menu.addAction(setDigitalAction)
+        menu.addAction(setBinaryAction)
 
         self.show()
 
