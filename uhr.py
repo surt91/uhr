@@ -334,13 +334,6 @@ class UhrWindow(QtGui.QMainWindow):
         setAnalogAction.setCheckable(True)
         setAnalogAction.triggered.connect(self.disp.setAnalog)
 
-        uhrDarstellung = QtGui.QActionGroup(self)
-        setDigitalAction.setChecked(True)
-        uhrDarstellung.addAction(setAnalogAction)
-        uhrDarstellung.addAction(setBinaryAction)
-        uhrDarstellung.addAction(setDigitalAction)
-
-
         setAnalogArcAction = QtGui.QAction(iconAnalog, 'Arc', self)
         setAnalogArcAction.setCheckable(True)
         setAnalogArcAction.triggered.connect(self.disp.setAnalogArc)
@@ -348,10 +341,13 @@ class UhrWindow(QtGui.QMainWindow):
         setAnalogBahnhofAction.setCheckable(True)
         setAnalogBahnhofAction.triggered.connect(self.disp.setAnalogBahnhof)
 
-        uhrAnalogDarstellung = QtGui.QActionGroup(self)
+        uhrDarstellung = QtGui.QActionGroup(self)
         setDigitalAction.setChecked(True)
-        uhrAnalogDarstellung.addAction(setAnalogArcAction)
-        uhrAnalogDarstellung.addAction(setAnalogBahnhofAction)
+        uhrDarstellung.addAction(setAnalogAction)
+        uhrDarstellung.addAction(setBinaryAction)
+        uhrDarstellung.addAction(setDigitalAction)
+        uhrDarstellung.addAction(setAnalogArcAction)
+        uhrDarstellung.addAction(setAnalogBahnhofAction)
 
 
         iconStoppuhr = QtGui.QIcon('stoppuhr.png')
