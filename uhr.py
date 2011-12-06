@@ -98,7 +98,7 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
 
         paint = QtGui.QPainter(self)
         paint.setPen(QtGui.QColor(255, 255, 255))
-        paint.setFont(QtGui.QFont('Monospace', self.size/10))
+        paint.setFont(QtGui.QFont('Monospace', self.size/7))
         paint.setRenderHint(QtGui.QPainter.Antialiasing)
         paint.eraseRect(self.geometry())
         if not self.bDestroy:
@@ -269,7 +269,7 @@ class BinaryUhrAnzeige(UhrAnzeige):
         paint.drawText(event.rect(), QtCore.Qt.AlignCenter, self.sText)
 
     def binary(self, x):
-        return "  {0:04b}\n{1:06b}\n{2:06b}"\
+        return "\n {0:05b}\n{1:06b}\n{2:06b}\n"\
                                    .format((x//3600)%24,(x//60)%60,x%60)
 
 class Stoppuhr(Uhr, QtGui.QWidget):
@@ -347,6 +347,7 @@ class UhrWindow(QtGui.QMainWindow):
 
         self.initUI()
 
+    # TODO: Uhr in Fenster zentrieren
     def initUI(self):
         # Fenstereigenschaften
         self.center()
@@ -428,6 +429,7 @@ class UhrWindow(QtGui.QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+    # TODO: Umschaltmöglichkeit einbauen
     def setStoppuhr(self):
         #~ try:
             #~ del self.disp
