@@ -358,8 +358,9 @@ class UhrWindow(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon('icon.png'))
 
         self.setUhrzeit()
-
-        self.setCentralWidget(self.disp)
+        self.mainDisp = QtGui.QHBoxLayout()
+        self.mainDisp.addWidget(self.disp)
+        self.setCentralWidget(self.mainDisp)
 
         # Menüeinträge
         iconBinary = QtGui.QIcon('binary.png')
@@ -437,7 +438,7 @@ class UhrWindow(QtGui.QMainWindow):
             #~ del self.disp
         #~ except:
             #~ pass
-        self = Stoppuhr()
+        self.disp = Stoppuhr()
         self.setCentralWidget(self.disp)
 
     def setUhrzeit(self):
