@@ -44,6 +44,7 @@ class Uhr():
         self.a.redraw(self.iSeconds)
 
     def setDigital(self):
+        self.a.__del__()
         self.display.removeWidget(self.a)
         del self.a
         self.a = DigitalUhrAnzeige()
@@ -51,6 +52,7 @@ class Uhr():
         self.c.redraw.emit()
 
     def setBinary(self):
+        self.a.__del__()
         self.display.removeWidget(self.a)
         del self.a
         self.a = BinaryUhrAnzeige()
@@ -58,6 +60,7 @@ class Uhr():
         self.c.redraw.emit()
 
     def setAnalog(self):
+        self.a.__del__()
         self.display.removeWidget(self.a)
         del self.a
         self.a = AnalogUhrAnzeige()
@@ -68,9 +71,15 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
     def __init__(self):
         super().__init__()
 
+        self.bDestroy = False
+
         self.setMinimumSize(100,100)
 
         self.show()
+
+    def __del__(self):
+        self.bDestroy = True
+        self.update()
 
     def on_redraw(self):
         self.update()
@@ -83,15 +92,16 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
         paint.setPen(QtGui.QColor(255, 255, 255))
         paint.setFont(QtGui.QFont('Monospace'))
         paint.setRenderHint(QtGui.QPainter.Antialiasing)
-        paint.eraseRect(event.rect())
-        self.drawZeit(paint, event)
+        if self.bDestroy:
+            paint.eraseRect(self.geometry())
+        else:
+            self.drawZeit(paint, event)
 
     def drawZeit(self, paint, event):
         pass
 
 class AnalogUhrAnzeige(UhrAnzeige):
     # TODO: drehende Zahnräder hinter Loch in Uhrblatt
-    #~ import math
 
     def __init__(self):
         super().__init__()
