@@ -409,7 +409,7 @@ class UhrWindow(QtGui.QMainWindow):
 
 
         menubar = self.menuBar()
-        menuFkt = menubar.addMenu('Funktion')
+        #~ menuFkt = menubar.addMenu('Funktion')
         menuDar = menubar.addMenu('Darstellung')
         menuDar.addAction(setDigitalAction)
         menuDar.addAction(setBinaryAction)
@@ -418,8 +418,8 @@ class UhrWindow(QtGui.QMainWindow):
         menuAna.addAction(setAnalogArcAction)
         menuAna.addAction(setAnalogBahnhofAction)
         #~ menuDar.addSeparator()
-        menuFkt.addAction(setUhrzeitAction)
-        menuFkt.addAction(setStoppuhrAction)
+        #~ menuFkt.addAction(setUhrzeitAction)
+        #~ menuFkt.addAction(setStoppuhrAction)
 
         self.show()
 
