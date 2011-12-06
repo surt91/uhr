@@ -94,12 +94,11 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
         self.update()
 
     def paintEvent(self, event):
-        size = min(self.height(), self.width())
-        self.resize(size,size)
+        self.size = min(self.height(), self.width())
 
         paint = QtGui.QPainter(self)
         paint.setPen(QtGui.QColor(255, 255, 255))
-        paint.setFont(QtGui.QFont('Monospace', size/10))
+        paint.setFont(QtGui.QFont('Monospace', self.size/10))
         paint.setRenderHint(QtGui.QPainter.Antialiasing)
         paint.eraseRect(self.geometry())
         if not self.bDestroy:
@@ -127,9 +126,6 @@ class AnalogUhrAnzeige(UhrAnzeige):
         self.on_redraw()
 
     def drawZeit(self, paint, event):
-        self.breit = self.width()
-        self.hoch  = self.height()
-
         if self.pStyle == self.styles["arc"]:
             self.arcStyle(paint, event)
         elif self.pStyle == self.styles["bahnhof"]:
@@ -138,8 +134,8 @@ class AnalogUhrAnzeige(UhrAnzeige):
     def bahnhofStyle(self, paint, event):
         h,m,s = self.analog(self.iSeconds)
 
-        mitte = QtCore.QPointF(QtCore.QRect(0,0,self.breit,self.hoch).center())
-        lange = self.size().width()/2
+        mitte = QtCore.QPointF(QtCore.QRect(0,0,self.size,self.size).center())
+        lange = self.size/2
         nullUhr = QtCore.QPointF(lange,0)
 
         stiftB = QtGui.QPen()
@@ -178,7 +174,7 @@ class AnalogUhrAnzeige(UhrAnzeige):
 
         paint.setPen(stiftB)
         paint.setBrush(bgColor)
-        paint.drawChord(0,0, self.breit, self.hoch, 0, 16 * 360)
+        paint.drawChord(0,0, self.size, self.size, 0, 16 * 360)
 
         paint.setPen(stiftH)
         paint.drawLine(stundenZeiger)
@@ -188,8 +184,8 @@ class AnalogUhrAnzeige(UhrAnzeige):
 
         paint.setPen(stiftS)
         paint.drawLine(sekundenZeiger)
-        radius = self.breit/30
-        paint.drawChord(self.breit/2+(dx-radius), self.breit/2+(dy-radius), 2*radius, 2*radius, 0, 16 * 360)
+        radius = self.size/30
+        paint.drawChord(self.size/2+(dx-radius), self.size/2+(dy-radius), 2*radius, 2*radius, 0, 16 * 360)
 
     def arcStyle(self, paint, event):
         h,m,s = self.analog(self.iSeconds)
@@ -215,19 +211,19 @@ class AnalogUhrAnzeige(UhrAnzeige):
 
         paint.setPen(bgColor)
         paint.setBrush(bgColor)
-        paint.drawPie(0,0, self.breit, self.hoch, 0, 16 * 360)
+        paint.drawPie(0,0, self.size, self.size, 0, 16 * 360)
 
         paint.setPen(zeigerHColor)
         paint.setBrush(zeigerHColor)
-        paint.drawPie(self.breit/6, self.hoch/6, self.breit*2/3, self.hoch*2/3, startHAngle, spanHAngle)
+        paint.drawPie(self.size/6, self.size/6, self.size*2/3, self.size*2/3, startHAngle, spanHAngle)
 
         paint.setPen(zeigerMColor)
         paint.setBrush(zeigerMColor)
-        paint.drawPie(0,0, self.breit, self.hoch, startMAngle, spanMAngle)
+        paint.drawPie(0,0, self.size, self.size, startMAngle, spanMAngle)
 
         paint.setPen(zeigerSColor)
         paint.setBrush(zeigerSColor)
-        paint.drawPie(0, 0, self.breit, self.hoch, startSAngle, spanSAngle)
+        paint.drawPie(0, 0, self.size, self.size, startSAngle, spanSAngle)
 
     def analog(self, x):
         """
@@ -358,9 +354,7 @@ class UhrWindow(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon('icon.png'))
 
         self.setUhrzeit()
-        self.mainDisp = QtGui.QHBoxLayout()
-        self.mainDisp.addWidget(self.disp)
-        self.setCentralWidget(self.mainDisp)
+        self.setCentralWidget(self.disp)
 
         # Menüeinträge
         iconBinary = QtGui.QIcon('binary.png')
@@ -377,15 +371,16 @@ class UhrWindow(QtGui.QMainWindow):
         setDigitalAction.triggered.connect(self.disp.setDigital)
         iconAnalog = QtGui.QIcon('analog.png')
         setAnalogAction = QtGui.QAction(iconAnalog, '&Analog', self)
-        setAnalogAction.setShortcut('a')
         setAnalogAction.setStatusTip('Analoge Uhr')
         setAnalogAction.setCheckable(True)
         setAnalogAction.triggered.connect(self.disp.setAnalog)
 
-        setAnalogArcAction = QtGui.QAction(iconAnalog, 'Arc', self)
+        setAnalogArcAction = QtGui.QAction(iconAnalog, '&Arc', self)
+        setAnalogArcAction.setShortcut('a')
         setAnalogArcAction.setCheckable(True)
         setAnalogArcAction.triggered.connect(self.disp.setAnalogArc)
-        setAnalogBahnhofAction = QtGui.QAction(iconAnalog, 'Bahnhof', self)
+        setAnalogBahnhofAction = QtGui.QAction(iconAnalog, 'Ba&hnhof', self)
+        setAnalogBahnhofAction.setShortcut('h')
         setAnalogBahnhofAction.setCheckable(True)
         setAnalogBahnhofAction.triggered.connect(self.disp.setAnalogBahnhof)
 
