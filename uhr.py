@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import math
 from PyQt4 import QtGui, QtCore
 
 class Communicate(QtCore.QObject):
@@ -67,6 +68,14 @@ class Uhr():
         self.display.addWidget(self.a)
         self.c.redraw.emit()
 
+    def setAnalogBahnhof(self):
+        self.setAnalog()
+        self.a.pStyle = self.a.styles["bahnhof"]
+
+    def setAnalogArc(self):
+        self.setAnalog()
+        self.a.pStyle = self.a.styles["arc"]
+
 class UhrAnzeige(Uhr, QtGui.QWidget):
     def __init__(self):
         super().__init__()
@@ -111,18 +120,29 @@ class AnalogUhrAnzeige(UhrAnzeige):
                         klein*60/2Pi -> Minuten\n\
                         dick*24/2Pi  -> Stunden")
 
-        self.styles = {"arc":0}
+        self.styles = {"arc":0, "bahnhof":1}
         self.pStyle = self.styles["arc"]
 
     def redraw(self, iSeconds):
         self.iSeconds = iSeconds
-        # TODO:
         self.on_redraw()
 
     def drawZeit(self, paint, event):
         if self.pStyle == self.styles["arc"]:
             self.arcStyle(paint, event)
-        #~ elif
+        elif self.pStyle == self.styles["bahnhof"]:
+            self.bahnhofStyle(paint, event)
+
+    def bahnhofStyle(self, paint, event):
+        h,m,s = self.analog(self.iSeconds)
+        bgColor = QtGui.QColor(255, 255, 255)
+
+        #~ mitte = QtGui.QDesktopWidget().availableGeometry().center()
+        mitte = self.geometry().center()
+        lange = self.size().x()/2
+        nullUhr = QtCore.QPointF(lange,0)
+        #~ nullUhr = self.
+        sekundenZeiger = QtCore.QLineF(mitte, nullUhr)
 
     def arcStyle(self, paint, event):
         h,m,s = self.analog(self.iSeconds)
@@ -299,36 +319,65 @@ class UhrWindow(QtGui.QMainWindow):
         setBinaryAction = QtGui.QAction(iconBinary, '&Binary', self)
         setBinaryAction.setShortcut('b')
         setBinaryAction.setStatusTip('Binär Uhr')
+        setBinaryAction.setCheckable(True)
         setBinaryAction.triggered.connect(self.disp.setBinary)
         iconDigital = QtGui.QIcon('digital.png')
         setDigitalAction = QtGui.QAction(iconDigital, '&Digital', self)
         setDigitalAction.setShortcut('d')
         setDigitalAction.setStatusTip('Digital Uhr')
+        setDigitalAction.setCheckable(True)
         setDigitalAction.triggered.connect(self.disp.setDigital)
         iconAnalog = QtGui.QIcon('analog.png')
         setAnalogAction = QtGui.QAction(iconAnalog, '&Analog', self)
         setAnalogAction.setShortcut('a')
         setAnalogAction.setStatusTip('Analoge Uhr')
+        setAnalogAction.setCheckable(True)
         setAnalogAction.triggered.connect(self.disp.setAnalog)
+
+        uhrDarstellung = QtGui.QActionGroup(self)
+        setDigitalAction.setChecked(True)
+        uhrDarstellung.addAction(setAnalogAction)
+        uhrDarstellung.addAction(setBinaryAction)
+        uhrDarstellung.addAction(setDigitalAction)
+
+
+        setAnalogArcAction = QtGui.QAction(iconAnalog, 'Arc', self)
+        setAnalogArcAction.setCheckable(True)
+        setAnalogArcAction.triggered.connect(self.disp.setAnalogArc)
+        setAnalogBahnhofAction = QtGui.QAction(iconAnalog, 'Bahnhof', self)
+        setAnalogBahnhofAction.setCheckable(True)
+        setAnalogBahnhofAction.triggered.connect(self.disp.setAnalogBahnhof)
+
+        uhrAnalogDarstellung = QtGui.QActionGroup(self)
+        setDigitalAction.setChecked(True)
+        uhrAnalogDarstellung.addAction(setAnalogArcAction)
+        uhrAnalogDarstellung.addAction(setAnalogBahnhofAction)
+
 
         iconStoppuhr = QtGui.QIcon('stoppuhr.png')
         setStoppuhrAction = QtGui.QAction(iconAnalog, '&Stoppuhr', self)
         setStoppuhrAction.setShortcut('s')
         setStoppuhrAction.setStatusTip('Stoppuhr')
+        setStoppuhrAction.setCheckable(True)
         setStoppuhrAction.triggered.connect(self.setStoppuhr)
-
         iconUhrzeit = QtGui.QIcon('uhrzeit.png')
         setUhrzeitAction = QtGui.QAction(iconAnalog, '&Uhr', self)
         setUhrzeitAction.setShortcut('u')
         setUhrzeitAction.setStatusTip('Uhrzeit')
+        setUhrzeitAction.setCheckable(True)
         setUhrzeitAction.triggered.connect(self.setUhrzeit)
+
 
         menubar = self.menuBar()
         menuFkt = menubar.addMenu('Funktion')
         menuDar = menubar.addMenu('Darstellung')
         menuDar.addAction(setDigitalAction)
         menuDar.addAction(setBinaryAction)
-        menuDar.addAction(setAnalogAction)
+        #~ menuDar.addAction(setAnalogAction)
+        menuAna = menuDar.addMenu("Analog")
+        menuAna.addAction(setAnalogArcAction)
+        menuAna.addAction(setAnalogBahnhofAction)
+        #~ menuDar.addSeparator()
         menuFkt.addAction(setUhrzeitAction)
         menuFkt.addAction(setStoppuhrAction)
 
