@@ -99,11 +99,10 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
 
         paint = QtGui.QPainter(self)
         paint.setPen(QtGui.QColor(255, 255, 255))
-        paint.setFont(QtGui.QFont('Monospace'))
+        paint.setFont(QtGui.QFont('Monospace', size/10))
         paint.setRenderHint(QtGui.QPainter.Antialiasing)
-        if self.bDestroy:
-            paint.eraseRect(self.geometry())
-        else:
+        paint.eraseRect(self.geometry())
+        if not self.bDestroy:
             self.drawZeit(paint, event)
 
     def drawZeit(self, paint, event):
@@ -128,6 +127,9 @@ class AnalogUhrAnzeige(UhrAnzeige):
         self.on_redraw()
 
     def drawZeit(self, paint, event):
+        self.breit = self.width()
+        self.hoch  = self.height()
+
         if self.pStyle == self.styles["arc"]:
             self.arcStyle(paint, event)
         elif self.pStyle == self.styles["bahnhof"]:
@@ -135,17 +137,65 @@ class AnalogUhrAnzeige(UhrAnzeige):
 
     def bahnhofStyle(self, paint, event):
         h,m,s = self.analog(self.iSeconds)
-        bgColor = QtGui.QColor(255, 255, 255)
 
-        #~ mitte = QtGui.QDesktopWidget().availableGeometry().center()
-        mitte = self.geometry().center()
-        lange = self.size().x()/2
+        mitte = QtCore.QPointF(QtCore.QRect(0,0,self.breit,self.hoch).center())
+        lange = self.size().width()/2
         nullUhr = QtCore.QPointF(lange,0)
-        #~ nullUhr = self.
+
+        stiftB = QtGui.QPen()
+        stiftS = QtGui.QPen()
+        stiftM = QtGui.QPen()
+        stiftH = QtGui.QPen()
+
+        bgColor = QtGui.QColor(255, 255, 255)
+        zeigerSColor = QtGui.QColor(255, 0, 0)
+        zeigerMColor = QtGui.QColor(0, 0, 0)
+        zeigerHColor = QtGui.QColor(0, 0, 0)
+
+        stiftB.setColor(zeigerHColor)
+        stiftS.setColor(zeigerSColor)
+        stiftM.setColor(zeigerMColor)
+        stiftH.setColor(zeigerHColor)
+        stiftH.setJoinStyle(0x40)
+
+        stiftH.setWidthF(4)
+
         sekundenZeiger = QtCore.QLineF(mitte, nullUhr)
+        sekundenZeiger.setAngle(-s + 90)
+        x = sekundenZeiger.length()
+        sekundenZeiger.setLength(0.8 * x)
+        dx = sekundenZeiger.dx()
+        dy = sekundenZeiger.dy()
+        sekundenZeiger.setLength(x)
+
+        minutenZeiger = QtCore.QLineF(mitte, nullUhr)
+        minutenZeiger.setAngle(-m + 90)
+        minutenZeiger.setLength(0.9 * minutenZeiger.length())
+
+        stundenZeiger = QtCore.QLineF(mitte, nullUhr)
+        stundenZeiger.setAngle(-h + 90)
+        stundenZeiger.setLength(0.6 * stundenZeiger.length())
+
+        paint.setPen(stiftB)
+        paint.setBrush(bgColor)
+        paint.drawChord(0,0, self.breit, self.hoch, 0, 16 * 360)
+
+        paint.setPen(stiftH)
+        paint.drawLine(stundenZeiger)
+
+        paint.setPen(stiftM)
+        paint.drawLine(minutenZeiger)
+
+        paint.setPen(stiftS)
+        paint.drawLine(sekundenZeiger)
+        radius = self.breit/30
+        paint.drawChord(self.breit/2+(dx-radius), self.breit/2+(dy-radius), 2*radius, 2*radius, 0, 16 * 360)
 
     def arcStyle(self, paint, event):
         h,m,s = self.analog(self.iSeconds)
+        s *= 16
+        m *= 16
+        h *= 16
 
         bgColor = QtGui.QColor(255, 255, 255)
 
@@ -161,36 +211,33 @@ class AnalogUhrAnzeige(UhrAnzeige):
         spanHAngle =  64
         zeigerHColor = QtGui.QColor(0, 0, 0)
 
-        breit = self.width()
-        hoch  = self.height()
-
         paint.setBrush(QtGui.QBrush(QtCore.Qt.SolidPattern))
 
         paint.setPen(bgColor)
         paint.setBrush(bgColor)
-        paint.drawPie(0,0, breit, hoch, 0, 16 * 360)
+        paint.drawPie(0,0, self.breit, self.hoch, 0, 16 * 360)
 
         paint.setPen(zeigerHColor)
         paint.setBrush(zeigerHColor)
-        paint.drawPie(breit/6, hoch/6, breit*2/3, hoch*2/3, startHAngle, spanHAngle)
+        paint.drawPie(self.breit/6, self.hoch/6, self.breit*2/3, self.hoch*2/3, startHAngle, spanHAngle)
 
         paint.setPen(zeigerMColor)
         paint.setBrush(zeigerMColor)
-        paint.drawPie(0,0, breit, hoch, startMAngle, spanMAngle)
+        paint.drawPie(0,0, self.breit, self.hoch, startMAngle, spanMAngle)
 
         paint.setPen(zeigerSColor)
         paint.setBrush(zeigerSColor)
-        paint.drawPie(0, 0, breit, hoch, startSAngle, spanSAngle)
+        paint.drawPie(0, 0, self.breit, self.hoch, startSAngle, spanSAngle)
 
     def analog(self, x):
         """
             Nimmt Sekunden engegen und gibt ein Tupel der Winkel aus:
             Erst Stunden, dann Mintuen, dann Sekunden Winkel
-            Dabei sind die Winkel in 16tel Winkelmaß angegeben
+            Dabei sind die Winkel in Winkelmaß angegeben
         """
-        s = (x%60)/60. * 360 *16
-        m = ((x/60.)%60)/60. * 360 *16
-        h = ((x/3600.)%12)/12. * 360 *16
+        s = (x%60)/60. * 360
+        m = ((x/60.)%60)/60. * 360
+        h = ((x/3600.)%12)/12. * 360
         return h,m,s
 
 class DigitalUhrAnzeige(UhrAnzeige):
