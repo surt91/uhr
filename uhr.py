@@ -111,11 +111,20 @@ class AnalogUhrAnzeige(UhrAnzeige):
                         klein*60/2Pi -> Minuten\n\
                         dick*24/2Pi  -> Stunden")
 
+        self.styles = {"arc":0}
+        self.pStyle = self.styles["arc"]
+
     def redraw(self, iSeconds):
         self.iSeconds = iSeconds
+        # TODO:
         self.on_redraw()
 
     def drawZeit(self, paint, event):
+        if self.pStyle == self.styles["arc"]:
+            self.arcStyle(paint, event)
+        #~ elif
+
+    def arcStyle(self, paint, event):
         h,m,s = self.analog(self.iSeconds)
 
         bgColor = QtGui.QColor(255, 255, 255)
@@ -128,8 +137,8 @@ class AnalogUhrAnzeige(UhrAnzeige):
         spanMAngle =  64
         zeigerMColor = QtGui.QColor(30, 30, 30)
 
-        startHAngle = - h - 128 + 90*16
-        spanHAngle =  256
+        startHAngle = - h - 32 + 90*16
+        spanHAngle =  64
         zeigerHColor = QtGui.QColor(0, 0, 0)
 
         breit = self.width()
@@ -161,7 +170,7 @@ class AnalogUhrAnzeige(UhrAnzeige):
         """
         s = (x%60)/60. * 360 *16
         m = ((x/60.)%60)/60. * 360 *16
-        h = ((x/3600.)%24)/24. * 360 *16
+        h = ((x/3600.)%12)/12. * 360 *16
         return h,m,s
 
 class DigitalUhrAnzeige(UhrAnzeige):
