@@ -410,9 +410,18 @@ class UhrWindow(QtGui.QMainWindow):
         setUhrzeitAction.setCheckable(True)
         setUhrzeitAction.triggered.connect(self.setUhrzeit)
 
+        exitAction = QtGui.QAction(QtGui.QIcon('exit.png'), '&Exit', self)
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.setStatusTip('Exit application')
+        exitAction.triggered.connect(QtGui.qApp.quit)
+
+        uhrFkt = QtGui.QActionGroup(self)
+        setUhrzeitAction.setChecked(True)
+        uhrFkt.addAction(setUhrzeitAction)
+        uhrFkt.addAction(setStoppuhrAction)
 
         menubar = self.menuBar()
-        #~ menuFkt = menubar.addMenu('Funktion')
+        menuFkt = menubar.addMenu('Funktion')
         menuDar = menubar.addMenu('Darstellung')
         menuDar.addAction(setDigitalAction)
         menuDar.addAction(setBinaryAction)
@@ -422,7 +431,8 @@ class UhrWindow(QtGui.QMainWindow):
         menuAna.addAction(setAnalogBahnhofAction)
         #~ menuDar.addSeparator()
         #~ menuFkt.addAction(setUhrzeitAction)
-        #~ menuFkt.addAction(setStoppuhrAction)
+        #~ menuFkt.addAction(setUhrzeitAction)
+        menuFkt.addAction(exitAction)
 
         self.show()
 
