@@ -154,7 +154,10 @@ class AnalogUhrAnzeige(UhrAnzeige):
         stiftH.setColor(zeigerHColor)
         stiftH.setJoinStyle(0x40)
 
-        stiftH.setWidthF(4)
+        stiftB.setWidthF(self.size/75)
+        stiftS.setWidthF(self.size/150)
+        stiftM.setWidthF(self.size/150)
+        stiftH.setWidthF(self.size/75)
 
         sekundenZeiger = QtCore.QLineF(mitte, nullUhr)
         sekundenZeiger.setAngle(-s + 90)
