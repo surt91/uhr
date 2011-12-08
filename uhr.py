@@ -353,6 +353,12 @@ class UhrWindow(QtGui.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.styles = { "binary":0,    "digital":1,
+                        "analogArc":2, "analogBahnhof":3}
+        self.style  = self.styles["digital"]
+        self.funcs  = { "uhrzeit":0,   "stoppuhr":1}
+        self.func   = self.funcs["uhrzeit"]
+
         self.initUI()
 
     # TODO: Uhr in Fenster zentrieren
@@ -362,10 +368,31 @@ class UhrWindow(QtGui.QMainWindow):
         self.setWindowTitle('Stoppuhr')
         self.setWindowIcon(QtGui.QIcon('icon.png'))
 
-        self.setUhrzeit()
+        self.setFunc()
+        self.setStyle()
         self.makeMenu()
 
         self.show()
+
+    def setStyle(self):
+        if self.style == self.styles["binary"]:
+            self.setABinary()
+        elif self.style == self.styles["digital"]:
+            self.setADigital()
+        elif self.style == self.styles["analogArc"]:
+            self.setAAnalogArc()
+        elif self.style == self.styles["analogBahnhof"]:
+            self.setAAnalogBahnhof()
+        else:
+            raise AttributeError
+
+    def setFunc(self):
+        if self.func == self.funcs["uhrzeit"]:
+            self.setUhrzeit()
+        elif self.func == self.funcs["stoppuhr"]:
+            self.setStoppuhr()
+        else:
+            raise AttributeError
 
     def center(self):
         qr = self.frameGeometry()
@@ -444,25 +471,32 @@ class UhrWindow(QtGui.QMainWindow):
         self.setMenuBar(menubar)
 
     def setABinary(self):
+        self.style = self.styles["binary"]
         self.disp.setBinary()
 
     def setADigital(self):
+        self.style = self.styles["digital"]
         self.disp.setDigital()
 
     def setAAnalogArc(self):
+        self.style = self.styles["analogArc"]
         self.disp.setAnalogArc()
 
     def setAAnalogBahnhof(self):
+        self.style = self.styles["analogBahnhof"]
         self.disp.setAnalogBahnhof()
 
-
     def setStoppuhr(self):
+        self.func = self.funcs["stoppuhr"]
         self.disp = Stoppuhr()
         self.setCentralWidget(self.disp)
+        self.setStyle()
 
     def setUhrzeit(self):
+        self.func = self.funcs["uhrzeit"]
         self.disp = Uhrzeit()
         self.setCentralWidget(self.disp)
+        self.setStyle()
 
 def main():
     app = QtGui.QApplication(sys.argv)
