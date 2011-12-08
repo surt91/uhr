@@ -10,6 +10,8 @@ class UhrAnzeige(QtGui.QWidget):
 
         self.setTicken(False)
 
+        self.iSeconds = 0
+
         self.styles = { "binary":0,    "digital":1,
                         "analogArc":2, "analogBahnhof":3}
 

@@ -60,6 +60,10 @@ class Stoppuhr(Uhr, QtGui.QWidget):
     def getAnzeige(self):
         return self.a
 
+    def on_update(self):
+        super().on_update()
+        self.a.redraw(self.iSeconds)
+
 class Uhrzeit(Uhr, QtGui.QWidget):
     def __init__(self):
         import time
@@ -86,6 +90,10 @@ class Uhrzeit(Uhr, QtGui.QWidget):
 
     def getAnzeige(self):
         return self.a
+
+    def on_update(self):
+        super().on_update()
+        self.a.redraw(self.iSeconds)
 
 class UhrWindow(QtGui.QMainWindow):
     def __init__(self):
