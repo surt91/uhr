@@ -30,6 +30,7 @@ class Uhr():
 
     def setTime(self, x):
         self.iSeconds = x
+        self.c.redraw.emit()
 
     def startUhr(self):
         self.timer.start(1000)
@@ -45,25 +46,28 @@ class Uhr():
         self.a.redraw(self.iSeconds)
 
     def setDigital(self):
-        self.a.__del__()
+        #~ self.a.__del__()
         self.display.removeWidget(self.a)
-        del self.a
+        self.a.close()
+        #~ del self.a
         self.a = DigitalUhrAnzeige()
         self.display.addWidget(self.a)
         self.c.redraw.emit()
 
     def setBinary(self):
-        self.a.__del__()
+        #~ self.a.__del__()
         self.display.removeWidget(self.a)
-        del self.a
+        self.a.close()
+        #~ del self.a
         self.a = BinaryUhrAnzeige()
         self.display.addWidget(self.a)
         self.c.redraw.emit()
 
     def setAnalog(self):
-        self.a.__del__()
+        #~ self.a.__del__()
         self.display.removeWidget(self.a)
-        del self.a
+        self.a.close()
+        #~ del self.a
         self.a = AnalogUhrAnzeige()
         self.display.addWidget(self.a)
         self.c.redraw.emit()
@@ -291,20 +295,24 @@ class Stoppuhr(Uhr, QtGui.QWidget):
         self.btn.setCheckable(True)
         self.btn.clicked.connect(self.uhr_toggle)
         self.btn.setToolTip('Klicke hier zum Starten/Stoppen der Uhr')
+        self.btn.setMaximumSize(self.btn.sizeHint())
 
         # Reset
         self.btn_reset = QtGui.QPushButton('Reset', self)
         self.btn_reset.clicked.connect(self.uhr_reset)
         self.btn_reset.setToolTip('Klicke hier zum Zurücksetzten der Uhr')
+        self.btn_reset.setMaximumSize(self.btn_reset.sizeHint())
 
         # Layout
         self.display = QtGui.QHBoxLayout()
         self.display.addWidget(self.a)
+        self.vbox = QtGui.QVBoxLayout()
+        self.vbox.addStretch(1)
+        self.vbox.addWidget(self.btn)
+        self.vbox.addWidget(self.btn_reset)
         self.layout = QtGui.QHBoxLayout()
         self.layout.addLayout(self.display)
-        self.layout.addWidget(self.btn)
-        self.layout.addWidget(self.btn_reset)
-        self.layout.addStretch(1)
+        self.layout.addLayout(self.vbox)
 
         self.setLayout(self.layout)
 
@@ -325,14 +333,19 @@ class Uhrzeit(Uhr, QtGui.QWidget):
         import time
         super().__init__()
 
-        self.a = DigitalUhrAnzeige()
-        self.a.redraw(0)
-        self.startUhr()
         now=time.localtime()
         now = now[3]*3600+now[4]*60+now[5]
-        print(now)
+
+        self.a = DigitalUhrAnzeige()
         self.setTime(now)
+        self.startUhr()
+
         self.initUI()
+
+    #~ def __del__(self):
+        #~ super().__del__()
+        #~ self.a.close()
+        #~ del self.a
 
     def initUI(self):
         self.setToolTip('Dies ist eine Uhr')
@@ -358,8 +371,16 @@ class UhrWindow(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon('icon.png'))
 
         self.setUhrzeit()
-        self.setCentralWidget(self.disp)
 
+        self.show()
+
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QtGui.QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
+    def makeMenu(self):
         # Menüeinträge
         iconBinary = QtGui.QIcon('binary.png')
         setBinaryAction = QtGui.QAction(iconBinary, '&Binary', self)
@@ -373,12 +394,8 @@ class UhrWindow(QtGui.QMainWindow):
         setDigitalAction.setStatusTip('Digital Uhr')
         setDigitalAction.setCheckable(True)
         setDigitalAction.triggered.connect(self.disp.setDigital)
-        iconAnalog = QtGui.QIcon('analog.png')
-        setAnalogAction = QtGui.QAction(iconAnalog, '&Analog', self)
-        setAnalogAction.setStatusTip('Analoge Uhr')
-        setAnalogAction.setCheckable(True)
-        setAnalogAction.triggered.connect(self.disp.setAnalog)
 
+        iconAnalog = QtGui.QIcon('analog.png')
         setAnalogArcAction = QtGui.QAction(iconAnalog, '&Arc', self)
         setAnalogArcAction.setShortcut('a')
         setAnalogArcAction.setCheckable(True)
@@ -390,7 +407,6 @@ class UhrWindow(QtGui.QMainWindow):
 
         uhrDarstellung = QtGui.QActionGroup(self)
         setDigitalAction.setChecked(True)
-        uhrDarstellung.addAction(setAnalogAction)
         uhrDarstellung.addAction(setBinaryAction)
         uhrDarstellung.addAction(setDigitalAction)
         uhrDarstellung.addAction(setAnalogArcAction)
@@ -420,44 +436,38 @@ class UhrWindow(QtGui.QMainWindow):
         uhrFkt.addAction(setUhrzeitAction)
         uhrFkt.addAction(setStoppuhrAction)
 
-        menubar = self.menuBar()
+        menubar = QtGui.QMenuBar(self)
         menuFkt = menubar.addMenu('Funktion')
         menuDar = menubar.addMenu('Darstellung')
         menuDar.addAction(setDigitalAction)
         menuDar.addAction(setBinaryAction)
-        #~ menuDar.addAction(setAnalogAction)
         menuAna = menuDar.addMenu("Analog")
         menuAna.addAction(setAnalogArcAction)
         menuAna.addAction(setAnalogBahnhofAction)
-        #~ menuDar.addSeparator()
-        #~ menuFkt.addAction(setUhrzeitAction)
-        #~ menuFkt.addAction(setUhrzeitAction)
+        menuFkt.addAction(setUhrzeitAction)
+        menuFkt.addAction(setStoppuhrAction)
         menuFkt.addAction(exitAction)
 
-        self.show()
+        self.setMenuBar(menubar)
 
-    def center(self):
-        qr = self.frameGeometry()
-        cp = QtGui.QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
-
-    # TODO: Umschaltmöglichkeit einbauen
     def setStoppuhr(self):
         #~ try:
-            #~ del self.disp
+            #~ self.disp.close()
         #~ except:
             #~ pass
+        #~ del self.disp.a
         self.disp = Stoppuhr()
         self.setCentralWidget(self.disp)
+        self.makeMenu()
 
     def setUhrzeit(self):
         #~ try:
-            #~ del self.disp
+            #~ self.disp.close()
         #~ except:
             #~ pass
         self.disp = Uhrzeit()
-        #~ self.setCentralWidget(self.disp)
+        self.setCentralWidget(self.disp)
+        self.makeMenu()
 
 def main():
     app = QtGui.QApplication(sys.argv)
