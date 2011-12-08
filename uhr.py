@@ -57,6 +57,9 @@ class Stoppuhr(Uhr, QtGui.QWidget):
             self.btn.setText("Start!")
             self.btn_reset.setDisabled(False)
 
+    def getAnzeige(self):
+        return self.a
+
 class Uhrzeit(Uhr, QtGui.QWidget):
     def __init__(self):
         import time
@@ -79,8 +82,10 @@ class Uhrzeit(Uhr, QtGui.QWidget):
         self.display.addWidget(self.a)
         self.setLayout(self.display)
 
-
         self.show()
+
+    def getAnzeige(self):
+        return self.a
 
 class UhrWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -112,13 +117,13 @@ class UhrWindow(QtGui.QMainWindow):
 
     def setStyle(self):
         if self.style == self.styles["binary"]:
-            self.setABinary()
+            self.setBinary()
         elif self.style == self.styles["digital"]:
-            self.setADigital()
+            self.setDigital()
         elif self.style == self.styles["analogArc"]:
-            self.setAAnalogArc()
+            self.setAnalogArc()
         elif self.style == self.styles["analogBahnhof"]:
-            self.setAAnalogBahnhof()
+            self.setAnalogBahnhof()
         else:
             raise AttributeError
 
@@ -143,28 +148,28 @@ class UhrWindow(QtGui.QMainWindow):
         setBinaryAction.setShortcut('b')
         setBinaryAction.setStatusTip('Binär Uhr')
         setBinaryAction.setCheckable(True)
-        setBinaryAction.triggered.connect(self.setABinary)
+        setBinaryAction.triggered.connect(self.setBinary)
         iconDigital = QtGui.QIcon('digital.png')
         setDigitalAction = QtGui.QAction(iconDigital, '&Digital', self)
         setDigitalAction.setShortcut('d')
         setDigitalAction.setStatusTip('Digital Uhr')
         setDigitalAction.setCheckable(True)
-        setDigitalAction.triggered.connect(self.setADigital)
+        setDigitalAction.triggered.connect(self.setDigital)
 
         iconAnalog = QtGui.QIcon('analog.png')
         setAnalogArcAction = QtGui.QAction(iconAnalog, '&Arc', self)
         setAnalogArcAction.setShortcut('a')
         setAnalogArcAction.setCheckable(True)
-        setAnalogArcAction.triggered.connect(self.setAAnalogArc)
+        setAnalogArcAction.triggered.connect(self.setAnalogArc)
         setAnalogBahnhofAction = QtGui.QAction(iconAnalog, 'Ba&hnhof', self)
         setAnalogBahnhofAction.setShortcut('h')
         setAnalogBahnhofAction.setCheckable(True)
-        setAnalogBahnhofAction.triggered.connect(self.setAAnalogBahnhof)
+        setAnalogBahnhofAction.triggered.connect(self.setAnalogBahnhof)
 
         toggleTickenAction = QtGui.QAction('&Ticken', self)
         toggleTickenAction.setShortcut('t')
         toggleTickenAction.setCheckable(True)
-        toggleTickenAction.triggered.connect(self.toggleATicken)
+        toggleTickenAction.triggered.connect(self.toggleTicken)
 
         uhrDarstellung = QtGui.QActionGroup(self)
         setDigitalAction.setChecked(True)
@@ -214,35 +219,37 @@ class UhrWindow(QtGui.QMainWindow):
 
         self.setMenuBar(menubar)
 
-    def setABinary(self):
+    def setBinary(self):
         self.style = self.styles["binary"]
-        self.disp.a.setBinary()
+        self.a.setBinary()
 
-    def setADigital(self):
+    def setDigital(self):
         self.style = self.styles["digital"]
-        self.disp.a.setDigital()
+        self.a.setDigital()
 
-    def setAAnalogArc(self):
+    def setAnalogArc(self):
         self.style = self.styles["analogArc"]
-        self.disp.a.setAnalogArc()
+        self.a.setAnalogArc()
 
-    def setAAnalogBahnhof(self):
+    def setAnalogBahnhof(self):
         self.style = self.styles["analogBahnhof"]
-        self.disp.a.setAnalogBahnhof()
+        self.a.setAnalogBahnhof()
 
     def setStoppuhr(self):
         self.func = self.funcs["stoppuhr"]
         self.disp = Stoppuhr()
+        self.a = self.disp.getAnzeige()
         self.setCentralWidget(self.disp)
         self.setStyle()
 
     def setUhrzeit(self):
         self.func = self.funcs["uhrzeit"]
         self.disp = Uhrzeit()
+        self.a = self.disp.getAnzeige()
         self.setCentralWidget(self.disp)
         self.setStyle()
 
-    def toggleATicken(self):
+    def toggleTicken(self):
         self.ticken = not self.ticken
         self.disp.a.setTicken(self.ticken)
 

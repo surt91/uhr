@@ -38,32 +38,3 @@ class Uhr():
 
     def on_update(self):
         self.a.redraw(self.iSeconds)
-#~
-    #~ def setDigital(self):
-        #~ self.display.removeWidget(self.a)
-        #~ self.a.close()
-        #~ self.a = DigitalUhrAnzeige()
-        #~ self.display.addWidget(self.a)
-        #~ self.c.redraw.emit()
-#~
-    #~ def setBinary(self):
-        #~ self.display.removeWidget(self.a)
-        #~ self.a.close()
-        #~ self.a = BinaryUhrAnzeige()
-        #~ self.display.addWidget(self.a)
-        #~ self.c.redraw.emit()
-#~
-    #~ def setAnalog(self):
-        #~ self.display.removeWidget(self.a)
-        #~ self.a.close()
-        #~ self.a = AnalogUhrAnzeige()
-        #~ self.display.addWidget(self.a)
-        #~ self.c.redraw.emit()
-#~
-    #~ def setAnalogBahnhof(self):
-        #~ self.setAnalog()
-        #~ self.a.pStyle = self.a.styles["bahnhof"]
-#~
-    #~ def setAnalogArc(self):
-        #~ self.setAnalog()
-        #~ self.a.pStyle = self.a.styles["arc"]
