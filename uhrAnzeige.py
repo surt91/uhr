@@ -27,7 +27,13 @@ class UhrAnzeige(QtGui.QWidget):
         self.update()
 
     def setTicken(self, b):
-        self.ticken = b
+        """
+            Schaltet ein Property, dass einstellt, ob der Minuten/Stunden-
+            Zeiger sich kotinuierlich oder diskret bewegen.
+
+            b: boolean
+        """
+        self.pTicken = b
         self.on_redraw()
 
     def paintEvent(self, event):
@@ -43,6 +49,10 @@ class UhrAnzeige(QtGui.QWidget):
         self.drawZeit(paint, event)
 
     def drawZeit(self, paint, event):
+        """
+            Überprüft das pStyle Property, welcher Style geählt ist und
+            startet die entsprechende Zeichenfunktion
+        """
         if self.pStyle == self.styles["analogArc"]:
             self.arcStyle(paint, event)
         elif self.pStyle == self.styles["analogBahnhof"]:
@@ -65,30 +75,73 @@ class UhrAnzeige(QtGui.QWidget):
         self.on_redraw()
 
     def setAnalogArc(self):
-        self.setToolTip("Die Winkel der Zeiger:\n\
-                        rot*60/2Pi   -> Sekunden\n\
-                        klein*60/2Pi -> Minuten\n\
-                        dick*24/2Pi  -> Stunden")
         self.pStyle = self.styles["analogArc"]
+        self.setAnalog()
         self.on_redraw()
 
     def setAnalogBahnhof(self):
+        self.pStyle = self.styles["analogBahnhof"]
+        self.setAnalog()
+        self.on_redraw()
+
+    def setAnalog(self):
         self.setToolTip("Die Winkel der Zeiger:\n\
                         rot*60/2Pi   -> Sekunden\n\
                         klein*60/2Pi -> Minuten\n\
                         dick*24/2Pi  -> Stunden")
-        self.pStyle = self.styles["analogBahnhof"]
-        self.on_redraw()
+
+
+    def analog(self, x):
+        """
+            Nimmt Sekunden engegen und gibt ein Tupel der Winkel aus:
+            Erst Stunden, dann Mintuen, dann Sekunden Winkel
+            Dabei sind die Winkel in Winkelmaß angegeben
+        """
+        if self.pTicken:
+            s = (x%60)/60. * 360
+            m = ((x//60)%60)/60. * 360
+            h = ((x//3600)%12)/12. * 360
+            return h,m,s
+        else:
+            s = (x%60)/60. * 360
+            m = ((x/60.)%60)/60. * 360
+            h = ((x/3600.)%12)/12. * 360
+            return h,m,s
+
+    def digital(self, x):
+        """
+            Nimmt Sekunden entgegen und gibt einen String im Digitaluhr-
+            format zurück.
+        """
+        return "{0:02d}:{1:02d}:{2:02d}"\
+                                   .format((x//3600)%24,(x//60)%60,x%60)
+
+    def binary(self, x):
+        """
+            Nimmt Sekunden entgegen und gibt einen String im Binäruhr-
+            format zurück.
+        """
+        return "\n {0:05b}\n{1:06b}\n{2:06b}\n"\
+                                   .format((x//3600)%24,(x//60)%60,x%60)
 
     def digitalStyle(self, paint, event):
+        """
+            Zeichenfunktion für Digitaluhr
+        """
         sZeit = self.digital(self.iSeconds)
         paint.drawText(event.rect(), QtCore.Qt.AlignCenter, sZeit)
 
     def binaryStyle(self, paint, event):
+        """
+            Zeichenfunktion für Binäruhr
+        """
         sZeit = self.binary(self.iSeconds)
         paint.drawText(event.rect(), QtCore.Qt.AlignCenter, sZeit)
 
     def bahnhofStyle(self, paint, event):
+        """
+            Zeichenfunktion für Bahnhofsuhr
+        """
         h,m,s = self.analog(self.iSeconds)
 
         mitte = QtCore.QPointF(self.bereich.center())
@@ -148,6 +201,9 @@ class UhrAnzeige(QtGui.QWidget):
         paint.drawChord(self.size/2+(dx-radius), self.size/2+(dy-radius), 2*radius, 2*radius, 0, 16 * 360)
 
     def arcStyle(self, paint, event):
+        """
+            Zeichenfunktion für minimalistische "Winkeluhr"
+        """
         h,m,s = self.analog(self.iSeconds)
         s *= 16
         m *= 16
@@ -187,28 +243,3 @@ class UhrAnzeige(QtGui.QWidget):
         paint.setPen(zeigerSColor)
         paint.setBrush(zeigerSColor)
         paint.drawPie(self.bereich, startSAngle, spanSAngle)
-
-    def analog(self, x):
-        """
-            Nimmt Sekunden engegen und gibt ein Tupel der Winkel aus:
-            Erst Stunden, dann Mintuen, dann Sekunden Winkel
-            Dabei sind die Winkel in Winkelmaß angegeben
-        """
-        if self.ticken:
-            s = (x%60)/60. * 360
-            m = ((x//60)%60)/60. * 360
-            h = ((x//3600)%12)/12. * 360
-            return h,m,s
-        else:
-            s = (x%60)/60. * 360
-            m = ((x/60.)%60)/60. * 360
-            h = ((x/3600.)%12)/12. * 360
-            return h,m,s
-
-    def digital(self, x):
-        return "{0:02d}:{1:02d}:{2:02d}"\
-                                   .format((x//3600)%24,(x//60)%60,x%60)
-
-    def binary(self, x):
-        return "\n {0:05b}\n{1:06b}\n{2:06b}\n"\
-                                   .format((x//3600)%24,(x//60)%60,x%60)
