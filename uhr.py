@@ -5,6 +5,8 @@ import sys
 import math
 from PyQt4 import QtGui, QtCore
 
+#TODO: Dokumentation aller Funktionen
+
 class Communicate(QtCore.QObject):
     redraw = QtCore.pyqtSignal()
 
@@ -70,7 +72,7 @@ class Uhr():
         self.setAnalog()
         self.a.pStyle = self.a.styles["arc"]
 
-class UhrAnzeige(Uhr, QtGui.QWidget):
+class UhrAnzeige(QtGui.QWidget):
     def __init__(self):
         super().__init__()
 
@@ -89,6 +91,8 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
 
     def paintEvent(self, event):
         self.size = min(self.height(), self.width())
+        self.margin = self.size / 100
+        self.bereich = QtCore.QRect(self.margin, self.margin, self.size - 2*self.margin, self.size - 2*self.margin)
 
         paint = QtGui.QPainter(self)
         paint.setPen(QtGui.QColor(255, 255, 255))
@@ -127,8 +131,8 @@ class AnalogUhrAnzeige(UhrAnzeige):
     def bahnhofStyle(self, paint, event):
         h,m,s = self.analog(self.iSeconds)
 
-        mitte = QtCore.QPointF(QtCore.QRect(0,0,self.size,self.size).center())
-        lange = self.size/2
+        mitte = QtCore.QPointF(self.bereich.center())
+        lange = self.size/2 - self.margin
         nullUhr = QtCore.QPointF(lange,0)
 
         stiftB = QtGui.QPen()
@@ -170,7 +174,7 @@ class AnalogUhrAnzeige(UhrAnzeige):
 
         paint.setPen(stiftB)
         paint.setBrush(bgColor)
-        paint.drawChord(0,0, self.size, self.size, 0, 16 * 360)
+        paint.drawChord(self.bereich, 0, 16 * 360)
 
         paint.setPen(stiftH)
         paint.drawLine(stundenZeiger)
@@ -204,10 +208,13 @@ class AnalogUhrAnzeige(UhrAnzeige):
         zeigerHColor = QtGui.QColor(0, 0, 0)
 
         paint.setBrush(QtGui.QBrush(QtCore.Qt.SolidPattern))
+        stiftB = QtGui.QPen()
+        stiftB.setColor(zeigerHColor)
+        stiftB.setWidthF(self.size/120)
 
-        paint.setPen(bgColor)
+        paint.setPen(stiftB)
         paint.setBrush(bgColor)
-        paint.drawPie(0,0, self.size, self.size, 0, 16 * 360)
+        paint.drawChord(self.bereich, 0, 16 * 360)
 
         paint.setPen(zeigerHColor)
         paint.setBrush(zeigerHColor)
@@ -215,11 +222,11 @@ class AnalogUhrAnzeige(UhrAnzeige):
 
         paint.setPen(zeigerMColor)
         paint.setBrush(zeigerMColor)
-        paint.drawPie(0,0, self.size, self.size, startMAngle, spanMAngle)
+        paint.drawPie(self.bereich, startMAngle, spanMAngle)
 
         paint.setPen(zeigerSColor)
         paint.setBrush(zeigerSColor)
-        paint.drawPie(0, 0, self.size, self.size, startSAngle, spanSAngle)
+        paint.drawPie(self.bereich, startSAngle, spanSAngle)
 
     def analog(self, x):
         """
