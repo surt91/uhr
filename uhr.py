@@ -114,6 +114,7 @@ class AnalogUhrAnzeige(UhrAnzeige):
 
         self.styles = {"arc":0, "bahnhof":1}
         self.pStyle = self.styles["arc"]
+        self.ticken = True
 
     def redraw(self, iSeconds):
         self.iSeconds = iSeconds
@@ -228,10 +229,16 @@ class AnalogUhrAnzeige(UhrAnzeige):
             Erst Stunden, dann Mintuen, dann Sekunden Winkel
             Dabei sind die Winkel in Winkelmaß angegeben
         """
-        s = (x%60)/60. * 360
-        m = ((x/60.)%60)/60. * 360
-        h = ((x/3600.)%12)/12. * 360
-        return h,m,s
+        if self.ticken:
+            s = (x%60)/60. * 360
+            m = ((x//60)%60)/60. * 360
+            h = ((x//3600)%12)/12. * 360
+            return h,m,s
+        else:
+            s = (x%60)/60. * 360
+            m = ((x/60.)%60)/60. * 360
+            h = ((x/3600.)%12)/12. * 360
+            return h,m,s
 
 class DigitalUhrAnzeige(UhrAnzeige):
     def __init__(self):
@@ -356,6 +363,7 @@ class UhrWindow(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon('icon.png'))
 
         self.setUhrzeit()
+        self.makeMenu()
 
         self.show()
 
@@ -372,23 +380,23 @@ class UhrWindow(QtGui.QMainWindow):
         setBinaryAction.setShortcut('b')
         setBinaryAction.setStatusTip('Binär Uhr')
         setBinaryAction.setCheckable(True)
-        setBinaryAction.triggered.connect(self.disp.setBinary)
+        setBinaryAction.triggered.connect(self.setABinary)
         iconDigital = QtGui.QIcon('digital.png')
         setDigitalAction = QtGui.QAction(iconDigital, '&Digital', self)
         setDigitalAction.setShortcut('d')
         setDigitalAction.setStatusTip('Digital Uhr')
         setDigitalAction.setCheckable(True)
-        setDigitalAction.triggered.connect(self.disp.setDigital)
+        setDigitalAction.triggered.connect(self.setADigital)
 
         iconAnalog = QtGui.QIcon('analog.png')
         setAnalogArcAction = QtGui.QAction(iconAnalog, '&Arc', self)
         setAnalogArcAction.setShortcut('a')
         setAnalogArcAction.setCheckable(True)
-        setAnalogArcAction.triggered.connect(self.disp.setAnalogArc)
+        setAnalogArcAction.triggered.connect(self.setAAnalogArc)
         setAnalogBahnhofAction = QtGui.QAction(iconAnalog, 'Ba&hnhof', self)
         setAnalogBahnhofAction.setShortcut('h')
         setAnalogBahnhofAction.setCheckable(True)
-        setAnalogBahnhofAction.triggered.connect(self.disp.setAnalogBahnhof)
+        setAnalogBahnhofAction.triggered.connect(self.setAAnalogBahnhof)
 
         uhrDarstellung = QtGui.QActionGroup(self)
         setDigitalAction.setChecked(True)
@@ -435,15 +443,26 @@ class UhrWindow(QtGui.QMainWindow):
 
         self.setMenuBar(menubar)
 
+    def setABinary(self):
+        self.disp.setBinary()
+
+    def setADigital(self):
+        self.disp.setDigital()
+
+    def setAAnalogArc(self):
+        self.disp.setAnalogArc()
+
+    def setAAnalogBahnhof(self):
+        self.disp.setAnalogBahnhof()
+
+
     def setStoppuhr(self):
         self.disp = Stoppuhr()
         self.setCentralWidget(self.disp)
-        self.makeMenu()
 
     def setUhrzeit(self):
         self.disp = Uhrzeit()
         self.setCentralWidget(self.disp)
-        self.makeMenu()
 
 def main():
     app = QtGui.QApplication(sys.argv)
