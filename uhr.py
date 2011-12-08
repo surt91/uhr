@@ -46,28 +46,22 @@ class Uhr():
         self.a.redraw(self.iSeconds)
 
     def setDigital(self):
-        #~ self.a.__del__()
         self.display.removeWidget(self.a)
         self.a.close()
-        #~ del self.a
         self.a = DigitalUhrAnzeige()
         self.display.addWidget(self.a)
         self.c.redraw.emit()
 
     def setBinary(self):
-        #~ self.a.__del__()
         self.display.removeWidget(self.a)
         self.a.close()
-        #~ del self.a
         self.a = BinaryUhrAnzeige()
         self.display.addWidget(self.a)
         self.c.redraw.emit()
 
     def setAnalog(self):
-        #~ self.a.__del__()
         self.display.removeWidget(self.a)
         self.a.close()
-        #~ del self.a
         self.a = AnalogUhrAnzeige()
         self.display.addWidget(self.a)
         self.c.redraw.emit()
@@ -89,10 +83,6 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
         self.setMinimumSize(100,100)
 
         self.show()
-
-    def __del__(self):
-        self.bDestroy = True
-        self.update()
 
     def on_redraw(self):
         self.update()
@@ -342,11 +332,6 @@ class Uhrzeit(Uhr, QtGui.QWidget):
 
         self.initUI()
 
-    #~ def __del__(self):
-        #~ super().__del__()
-        #~ self.a.close()
-        #~ del self.a
-
     def initUI(self):
         self.setToolTip('Dies ist eine Uhr')
 
@@ -451,20 +436,11 @@ class UhrWindow(QtGui.QMainWindow):
         self.setMenuBar(menubar)
 
     def setStoppuhr(self):
-        #~ try:
-            #~ self.disp.close()
-        #~ except:
-            #~ pass
-        #~ del self.disp.a
         self.disp = Stoppuhr()
         self.setCentralWidget(self.disp)
         self.makeMenu()
 
     def setUhrzeit(self):
-        #~ try:
-            #~ self.disp.close()
-        #~ except:
-            #~ pass
         self.disp = Uhrzeit()
         self.setCentralWidget(self.disp)
         self.makeMenu()
