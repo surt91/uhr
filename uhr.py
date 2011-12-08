@@ -38,10 +38,6 @@ class Uhr():
     def stopUhr(self):
         self.timer.stop()
 
-    #~ def on_update(self):
-        #~ self.update()
-        #~ pass
-
     def on_update(self):
         self.a.redraw(self.iSeconds)
 
@@ -78,7 +74,7 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
     def __init__(self):
         super().__init__()
 
-        self.bDestroy = False
+        self.setTicken(False)
 
         self.setMinimumSize(100,100)
 
@@ -86,6 +82,10 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
 
     def on_redraw(self):
         self.update()
+
+    def setTicken(self, b):
+        self.ticken = b
+        self.on_redraw()
 
     def paintEvent(self, event):
         self.size = min(self.height(), self.width())
@@ -95,8 +95,7 @@ class UhrAnzeige(Uhr, QtGui.QWidget):
         paint.setFont(QtGui.QFont('Monospace', self.size/7))
         paint.setRenderHint(QtGui.QPainter.Antialiasing)
         paint.eraseRect(self.geometry())
-        if not self.bDestroy:
-            self.drawZeit(paint, event)
+        self.drawZeit(paint, event)
 
     def drawZeit(self, paint, event):
         pass
@@ -114,7 +113,6 @@ class AnalogUhrAnzeige(UhrAnzeige):
 
         self.styles = {"arc":0, "bahnhof":1}
         self.pStyle = self.styles["arc"]
-        self.ticken = True
 
     def redraw(self, iSeconds):
         self.iSeconds = iSeconds
@@ -355,9 +353,12 @@ class UhrWindow(QtGui.QMainWindow):
 
         self.styles = { "binary":0,    "digital":1,
                         "analogArc":2, "analogBahnhof":3}
-        self.style  = self.styles["digital"]
         self.funcs  = { "uhrzeit":0,   "stoppuhr":1}
+
+        self.style  = self.styles["digital"]
         self.func   = self.funcs["uhrzeit"]
+
+        self.ticken = False
 
         self.initUI()
 
@@ -425,6 +426,11 @@ class UhrWindow(QtGui.QMainWindow):
         setAnalogBahnhofAction.setCheckable(True)
         setAnalogBahnhofAction.triggered.connect(self.setAAnalogBahnhof)
 
+        toggleTickenAction = QtGui.QAction('&Ticken', self)
+        toggleTickenAction.setShortcut('t')
+        toggleTickenAction.setCheckable(True)
+        toggleTickenAction.triggered.connect(self.toggleATicken)
+
         uhrDarstellung = QtGui.QActionGroup(self)
         setDigitalAction.setChecked(True)
         uhrDarstellung.addAction(setBinaryAction)
@@ -434,19 +440,20 @@ class UhrWindow(QtGui.QMainWindow):
 
 
         iconStoppuhr = QtGui.QIcon('stoppuhr.png')
-        setStoppuhrAction = QtGui.QAction(iconAnalog, '&Stoppuhr', self)
+        setStoppuhrAction = QtGui.QAction(iconStoppuhr, '&Stoppuhr', self)
         setStoppuhrAction.setShortcut('s')
         setStoppuhrAction.setStatusTip('Stoppuhr')
         setStoppuhrAction.setCheckable(True)
         setStoppuhrAction.triggered.connect(self.setStoppuhr)
         iconUhrzeit = QtGui.QIcon('uhrzeit.png')
-        setUhrzeitAction = QtGui.QAction(iconAnalog, '&Uhr', self)
+        setUhrzeitAction = QtGui.QAction(iconUhrzeit, '&Uhr', self)
         setUhrzeitAction.setShortcut('u')
         setUhrzeitAction.setStatusTip('Uhrzeit')
         setUhrzeitAction.setCheckable(True)
         setUhrzeitAction.triggered.connect(self.setUhrzeit)
 
-        exitAction = QtGui.QAction(QtGui.QIcon('exit.png'), '&Exit', self)
+        iconExit = QtGui.QIcon('exit.png')
+        exitAction = QtGui.QAction(iconExit, '&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(QtGui.qApp.quit)
@@ -464,6 +471,8 @@ class UhrWindow(QtGui.QMainWindow):
         menuAna = menuDar.addMenu("Analog")
         menuAna.addAction(setAnalogArcAction)
         menuAna.addAction(setAnalogBahnhofAction)
+        menuAna.addSeparator()
+        menuAna.addAction(toggleTickenAction)
         menuFkt.addAction(setUhrzeitAction)
         menuFkt.addAction(setStoppuhrAction)
         menuFkt.addAction(exitAction)
@@ -497,6 +506,10 @@ class UhrWindow(QtGui.QMainWindow):
         self.disp = Uhrzeit()
         self.setCentralWidget(self.disp)
         self.setStyle()
+
+    def toggleATicken(self):
+        self.ticken = not self.ticken
+        self.disp.a.setTicken(self.ticken)
 
 def main():
     app = QtGui.QApplication(sys.argv)
