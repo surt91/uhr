@@ -171,7 +171,7 @@ class UhrAnzeige(QtGui.QWidget):
 
         sekundenZeiger = QtCore.QLineF(mitte, nullUhr)
         sekundenZeiger.setAngle(-s + 90)
-        x = sekundenZeiger.length()
+        x = sekundenZeiger.length()QL
         sekundenZeiger.setLength(0.8 * x)
         dx = sekundenZeiger.dx()
         dy = sekundenZeiger.dy()

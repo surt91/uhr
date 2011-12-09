@@ -96,12 +96,12 @@ class Uhrzeit(Uhr, QtGui.QWidget):
         self.a.redraw(self.iSeconds)
 
 class UhrWindow(QtGui.QMainWindow):
+    styles = { "last" : 0,
+                "binary":1,    "digital":2,
+                "analogArc":3, "analogBahnhof":4}
+    funcs  = { "uhrzeit":0,   "stoppuhr":1}
     def __init__(self):
         super().__init__()
-
-        self.styles = { "binary":0,    "digital":1,
-                        "analogArc":2, "analogBahnhof":3}
-        self.funcs  = { "uhrzeit":0,   "stoppuhr":1}
 
         self.style  = self.styles["digital"]
         self.func   = self.funcs["uhrzeit"]
@@ -123,15 +123,19 @@ class UhrWindow(QtGui.QMainWindow):
 
         self.show()
 
-    def setStyle(self):
+    def setStyle(self, style = styles["last"]):
+        if style == self.styles["last"]:
+            style = self.style
+        else:
+            self.style = style
         if self.style == self.styles["binary"]:
-            self.setBinary()
+            self.a.setBinary()
         elif self.style == self.styles["digital"]:
-            self.setDigital()
+            self.a.setDigital()
         elif self.style == self.styles["analogArc"]:
-            self.setAnalogArc()
+            self.a.setAnalogArc()
         elif self.style == self.styles["analogBahnhof"]:
-            self.setAnalogBahnhof()
+            self.a.setAnalogBahnhof()
         else:
             raise AttributeError
 
@@ -228,20 +232,16 @@ class UhrWindow(QtGui.QMainWindow):
         self.setMenuBar(menubar)
 
     def setBinary(self):
-        self.style = self.styles["binary"]
-        self.a.setBinary()
+        self.setStyle(self.styles["binary"])
 
     def setDigital(self):
-        self.style = self.styles["digital"]
-        self.a.setDigital()
+        self.setStyle(self.styles["digital"])
 
     def setAnalogArc(self):
-        self.style = self.styles["analogArc"]
-        self.a.setAnalogArc()
+        self.setStyle(self.styles["analogArc"])
 
     def setAnalogBahnhof(self):
-        self.style = self.styles["analogBahnhof"]
-        self.a.setAnalogBahnhof()
+        self.setStyle(self.styles["analogBahnhof"])
 
     def setStoppuhr(self):
         self.func = self.funcs["stoppuhr"]
