@@ -7,6 +7,7 @@ from uhrAnzeige import *
 from uhrFunktion import *
 
 #TODO: Dokumentation aller Funktionen
+#TODO: Icons
 
 class Stoppuhr(Uhr, QtGui.QWidget):
     def __init__(self):
@@ -62,7 +63,7 @@ class Stoppuhr(Uhr, QtGui.QWidget):
 
     def on_update(self):
         super().on_update()
-        self.a.redraw(self.iSeconds)
+        self.a.redraw(self.getSeconds())
 
 class Uhrzeit(Uhr, QtGui.QWidget):
     def __init__(self):
@@ -93,7 +94,7 @@ class Uhrzeit(Uhr, QtGui.QWidget):
 
     def on_update(self):
         super().on_update()
-        self.a.redraw(self.iSeconds)
+        self.a.redraw(self.getSeconds())
 
 class UhrWindow(QtGui.QMainWindow):
     styles = { "last" : 0,

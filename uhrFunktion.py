@@ -10,35 +10,41 @@ class Uhr():
     def __init__(self):
         super().__init__()
 
-        self.c = Communicate()
-        self.c.tick.connect(self.on_update)
+        self.__c = Communicate()
+        self.__c.tick.connect(self.on_update)
 
         # Timer
-        self.iSeconds = 0
+        self.__iSeconds = 0
         self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self._time_update)
+        self.timer.timeout.connect(self.__time_update)
 
     def uhr_reset(self):
         """
             Setzt die Uhr auf 0 Sekunden zurück
         """
-        self.iSeconds = 0
-        self.c.tick.emit()
+        self.__iSeconds = 0
+        self.__c.tick.emit()
 
-    def _time_update(self):
+    def __time_update(self):
         """
             Wird von einem Timer aufgerufen; zählt die Sekunden hoch und
             stößt ein NeuZeichnen an
         """
-        self.iSeconds += 1
-        self.c.tick.emit()
+        self.__iSeconds += 1
+        self.__c.tick.emit()
 
     def setTime(self, x):
         """
             Setzt die Zeit auf x Sekunden
         """
-        self.iSeconds = x
-        self.c.tick.emit()
+        self.__iSeconds = x
+        self.__c.tick.emit()
+
+    def getSeconds(self):
+        """
+            gibt die Sekundenzahl zurück
+        """
+        return self.__iSeconds
 
     def startUhr(self):
         """
