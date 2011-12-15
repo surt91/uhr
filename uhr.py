@@ -3,16 +3,19 @@
 
 import sys
 
-from Uhrzeit    import *
-from Stoppuhr   import *
-from zahlWahler import *
+from Uhrzeit       import *
+from Stoppuhr      import *
+from zahlSelektor  import *
 
 #TODO: Dokumentation aller Funktionen
 #TODO: Icons
+#TODO: Color Chooser
+#TODO: Uhr in Fenster zentrieren
+
 class UhrWindow(QtGui.QMainWindow):
     styles = { "last" : 0,
-                "binary":1,    "digital":2,
-                "analogArc":3, "analogBahnhof":4}
+               "binary":1,    "digital":2,
+               "analogArc":3, "analogBahnhof":4}
     funcs  = { "uhrzeit":0,   "stoppuhr":1}
     def __init__(self):
         super().__init__()
@@ -24,7 +27,6 @@ class UhrWindow(QtGui.QMainWindow):
 
         self.initUI()
 
-    # TODO: Uhr in Fenster zentrieren
     def initUI(self):
         # Fenstereigenschaften
         self.center()
@@ -187,7 +189,7 @@ class UhrWindow(QtGui.QMainWindow):
         self.disp.a.setTicken(self.ticken)
 
     def setFreq(self):
-        freqChooser = ZahlWahler(self.disp.getFreq())
+        freqChooser = ZahlSelektor(self.disp.getFreq())
         self.connect(freqChooser, QtCore.SIGNAL('signalFreqChanged'), self.disp.setFreq)
         freqChooser.exec_()
 

@@ -3,11 +3,14 @@
 
 from PyQt4 import QtGui, QtCore
 
-class ZahlWahler(QtGui.QDialog):
+class ZahlSelektor(QtGui.QDialog):
     def __init__(self, default):
         super().__init__()
 
         self.initUI(default)
+
+    #~ def __del__(self):
+        #~ print("kaputt")
 
     def initUI(self, default):
         lcd = QtGui.QLCDNumber(self)
@@ -41,7 +44,7 @@ class ZahlWahler(QtGui.QDialog):
 
         self.setLayout(hbox)
 
-        self.setGeometry(300, 300, 250, 150)
+        #~ self.setGeometry(300, 300, 250, 150)
         self.setWindowTitle('Frequenz Auswahl')
 
         self.show()
