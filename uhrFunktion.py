@@ -15,8 +15,8 @@ class Uhr():
 
         # Timer
         self.__iSeconds = 0
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.__time_update)
+        self.__timer = QtCore.QTimer()
+        self.__timer.timeout.connect(self.__time_update)
 
         self.__running = False
 

@@ -17,16 +17,15 @@ class ZahlWahler(QtGui.QDialog):
 
         sld.setValue(default)
         lcd.display(default)
-        self.wert = default
-        self.freq = default
+        self.__wert = default
 
         sld.valueChanged.connect(lcd.display)
-        sld.valueChanged.connect(self.setVal)
+        sld.valueChanged.connect(self.__setVal)
 
-        self.btn = QtGui.QPushButton('&Setzen!', self)
-        self.btn.clicked.connect(self.sendFreq)
-        self.btn.setToolTip('Klicke hier um die neue Frequenz abzuschicken')
-        self.btn.setMaximumSize(self.btn.sizeHint())
+        btn = QtGui.QPushButton('&Setzen!', self)
+        btn.clicked.connect(self.__sendVal)
+        btn.setToolTip('Klicke hier um die neue Frequenz abzuschicken')
+        btn.setMaximumSize(btn.sizeHint())
 
         vbox1 = QtGui.QVBoxLayout()
         vbox1.addWidget(lcd)
@@ -34,7 +33,7 @@ class ZahlWahler(QtGui.QDialog):
 
         vbox2 = QtGui.QVBoxLayout()
         vbox2.addStretch(1)
-        vbox2.addWidget(self.btn)
+        vbox2.addWidget(btn)
 
         hbox = QtGui.QHBoxLayout()
         hbox.addLayout(vbox1)
@@ -47,10 +46,9 @@ class ZahlWahler(QtGui.QDialog):
 
         self.show()
 
+    def __setVal(self, x):
+        self.__wert = x
 
-    def setVal(self, x):
-        self.wert = x
-
-    def sendFreq(self):
-        self.emit(QtCore.SIGNAL('signalFreqChanged'), self.wert)
+    def __sendVal(self):
+        self.emit(QtCore.SIGNAL('signalFreqChanged'), self.__wert)
         self.close()
