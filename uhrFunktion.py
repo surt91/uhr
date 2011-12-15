@@ -18,6 +18,8 @@ class Uhr():
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.__time_update)
 
+        self.__running = False
+
         self.setFreq(1)
 
     def uhr_reset(self):
@@ -48,7 +50,8 @@ class Uhr():
         """
         self.__fFreq = f
         self.stopUhr()
-        self.startUhr()
+        if self.__running:
+            self.startUhr()
         self.__c.tick.emit()
 
     def getFreq(self):
@@ -67,13 +70,15 @@ class Uhr():
         """
             Startet den Timer; die Uhr tickt nach dieser Funktion
         """
-        self.timer.start(1000/self.__fFreq)
+        self.__running = True
+        self.__timer.start(1000/self.__fFreq)
 
     def stopUhr(self):
         """
             Stoppt den Timer; die Uhr hält an
         """
-        self.timer.stop()
+        self.__running = False
+        self.__timer.stop()
 
     def on_update(self):
         pass
