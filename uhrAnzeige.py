@@ -186,14 +186,21 @@ class UhrAnzeige(QtGui.QWidget):
         stiftH.setWidthF(self.__size/75)
         stiftR.setWidthF(self.__size/75)
 
+        sekundenZeiger1 = QtCore.QLineF(mitte, nullUhr)
+        sekundenZeiger1.setAngle(-s + 90)
+        dx = sekundenZeiger1.dx() * 0.8
+        dy = sekundenZeiger1.dy() * 0.8
+        radius = self.__size/30
+        x = sekundenZeiger1.length()
+        sekundenZeiger1.setLength(0.8 * x - radius)
 
-        sekundenZeiger = QtCore.QLineF(mitte, nullUhr)
-        sekundenZeiger.setAngle(-s + 90)
-        x = sekundenZeiger.length()
-        sekundenZeiger.setLength(0.8 * x)
-        dx = sekundenZeiger.dx()
-        dy = sekundenZeiger.dy()
-        sekundenZeiger.setLength(x)
+        sekundenZeiger2 = QtCore.QLineF(mitte, nullUhr)
+        sekundenZeiger2.setAngle(-s + 90)
+        p1 = sekundenZeiger2.p2()
+        p2 = sekundenZeiger2.p1()
+        sekundenZeiger2.setP1(p1)
+        sekundenZeiger2.setP2(p2)
+        sekundenZeiger2.setLength(0.2 * x - radius)
 
         minutenZeiger = QtCore.QLineF(mitte, nullUhr)
         minutenZeiger.setAngle(-m + 90)
@@ -214,9 +221,10 @@ class UhrAnzeige(QtGui.QWidget):
         paint.drawLine(minutenZeiger)
 
         paint.setPen(stiftS)
-        paint.drawLine(sekundenZeiger)
-        radius = self.__size/30
-        paint.drawChord(self.__size/2+(dx-radius), self.__size/2+(dy-radius),\
+        paint.drawLine(sekundenZeiger1)
+        paint.drawLine(sekundenZeiger2)
+
+        paint.drawArc(self.__size/2+(dx-radius), self.__size/2+(dy-radius),\
                         2*radius, 2*radius, 0, 16 * 360)
 
     def __arcStyle(self, paint, event):
