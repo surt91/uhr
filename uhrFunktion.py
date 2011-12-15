@@ -49,9 +49,11 @@ class Uhr():
             Setzt die die Frequenz in Hz
         """
         self.__fFreq = f
-        self.stopUhr()
         if self.__running:
+            self.stopUhr()
             self.startUhr()
+        else:
+            self.stopUhr()
         self.__c.tick.emit()
 
     def getFreq(self):

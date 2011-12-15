@@ -3,106 +3,12 @@
 
 import sys
 
-from uhrAnzeige  import *
-from uhrFunktion import *
-from zahlWahler  import *
+from Uhrzeit    import *
+from Stoppuhr   import *
+from zahlWahler import *
 
 #TODO: Dokumentation aller Funktionen
 #TODO: Icons
-
-class Stoppuhr(Uhr, QtGui.QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self.a = UhrAnzeige()
-        self.a.redraw(0)
-        self.initUI()
-
-    def initUI(self):
-        self.setToolTip('Dies ist eine Stoppuhr')
-
-        #Start- und Stoppknopf
-        self.btn = QtGui.QPushButton('&Start!', self)
-        self.btn.setCheckable(True)
-        self.btn.clicked.connect(self.uhr_toggle)
-        self.btn.setToolTip('Klicke hier zum Starten/Stoppen der Uhr')
-        self.btn.setMaximumSize(self.btn.sizeHint())
-
-        # Reset
-        self.btn_reset = QtGui.QPushButton('Reset', self)
-        self.btn_reset.clicked.connect(self.uhr_reset)
-        self.btn_reset.setToolTip('Klicke hier zum Zurücksetzten der Uhr')
-        self.btn_reset.setMaximumSize(self.btn_reset.sizeHint())
-
-        # Layout
-        display = QtGui.QHBoxLayout()
-        display.addWidget(self.a)
-        vbox = QtGui.QVBoxLayout()
-        vbox.addStretch(1)
-        vbox.addWidget(self.btn)
-        vbox.addWidget(self.btn_reset)
-        layout = QtGui.QHBoxLayout()
-        layout.addLayout(display)
-        layout.addLayout(vbox)
-
-        self.setLayout(layout)
-
-        self.show()
-
-    def uhr_toggle(self):
-        if self.btn.isChecked():
-            self.startUhr()
-            self.btn.setText("Stopp!")
-            self.btn_reset.setDisabled(True)
-        else:
-            self.stopUhr()
-            self.btn.setText("Start!")
-            self.btn_reset.setDisabled(False)
-
-    def getAnzeige(self):
-        return self.a
-
-    def on_update(self):
-        super().on_update()
-        try:
-            self.a.redraw(self.getSeconds())
-        except:
-            pass
-
-class Uhrzeit(Uhr, QtGui.QWidget):
-    def __init__(self):
-        import time
-        super().__init__()
-
-        now=time.localtime()
-        now = now[3]*3600+now[4]*60+now[5]
-
-        self.a = UhrAnzeige()
-        self.setTime(now)
-        self.startUhr()
-
-        self.initUI()
-
-    def initUI(self):
-        self.setToolTip('Dies ist eine Uhr')
-
-        # Layout
-        display = QtGui.QHBoxLayout()
-        display.addWidget(self.a)
-        self.setLayout(display)
-
-        self.show()
-
-    def getAnzeige(self):
-        return self.a
-
-    def on_update(self):
-        super().on_update()
-        try:
-            self.a.redraw(self.getSeconds())
-        except:
-            pass
-
 class UhrWindow(QtGui.QMainWindow):
     styles = { "last" : 0,
                 "binary":1,    "digital":2,
@@ -228,9 +134,16 @@ class UhrWindow(QtGui.QMainWindow):
         uhrFkt.addAction(setUhrzeitAction)
         uhrFkt.addAction(setStoppuhrAction)
 
+        # Menüs
         menubar = QtGui.QMenuBar(self)
         menuFkt = menubar.addMenu('Funktion')
         menuDar = menubar.addMenu('Darstellung')
+        menuSch = menubar.addMenu('Schnickschnack')
+
+        menuFkt.addAction(setUhrzeitAction)
+        menuFkt.addAction(setStoppuhrAction)
+        menuFkt.addAction(exitAction)
+
         menuDar.addAction(setDigitalAction)
         menuDar.addAction(setBinaryAction)
         menuAna = menuDar.addMenu("Analog")
@@ -238,10 +151,8 @@ class UhrWindow(QtGui.QMainWindow):
         menuAna.addAction(setAnalogBahnhofAction)
         menuAna.addSeparator()
         menuAna.addAction(toggleTickenAction)
-        menuFkt.addAction(setUhrzeitAction)
-        menuFkt.addAction(setStoppuhrAction)
-        menuFkt.addAction(setFreqAction)
-        menuFkt.addAction(exitAction)
+
+        menuSch.addAction(setFreqAction)
 
         self.setMenuBar(menubar)
 
