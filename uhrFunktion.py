@@ -3,15 +3,12 @@
 
 from PyQt4 import QtGui, QtCore
 
-class Communicate(QtCore.QObject):
-    tick = QtCore.pyqtSignal()
-
 class Uhr():
     def __init__(self):
         super().__init__()
 
-        self.__c = Communicate()
-        self.__c.tick.connect(self.on_update)
+        self.signalTick = QtCore.SIGNAL('signalTicked')
+        self.connect(self, self.signalTick, self.on_update)
 
         # Timer
         self.__iSeconds = 0
@@ -27,7 +24,7 @@ class Uhr():
             Setzt die Uhr auf 0 Sekunden zurück
         """
         self.__iSeconds = 0
-        self.__c.tick.emit()
+        self.emit(self.signalTick)
 
     def __time_update(self):
         """
@@ -35,14 +32,14 @@ class Uhr():
             stößt ein NeuZeichnen an
         """
         self.__iSeconds += 1
-        self.__c.tick.emit()
+        self.emit(self.signalTick)
 
     def setTime(self, x):
         """
             Setzt die Zeit auf x Sekunden
         """
         self.__iSeconds = x
-        self.__c.tick.emit()
+        self.emit(self.signalTick)
 
     def setFreq(self, f):
         """
@@ -54,7 +51,7 @@ class Uhr():
             self.startUhr()
         else:
             self.stopUhr()
-        self.__c.tick.emit()
+        self.emit(self.signalTick)
 
     def getFreq(self):
         """
