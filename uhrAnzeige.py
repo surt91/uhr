@@ -17,6 +17,14 @@ class UhrAnzeige(QtGui.QWidget):
 
         self.setMinimumSize(100,100)
 
+        self.colorDict = {"bg"   : QtGui.QColor(255, 255, 255),
+                          "s"    : QtGui.QColor(255,   0,   0),
+                          "m"    : QtGui.QColor(  0,   0,   0),
+                          "h"    : QtGui.QColor(  0,   0,   0),
+                          "rand" : QtGui.QColor(  0,   0,   0),
+                          "text" : QtGui.QColor(255, 255, 255), }
+        self.setColor(self.colorDict)
+
         self.show()
 
     def redraw(self, iSeconds):
@@ -25,6 +33,18 @@ class UhrAnzeige(QtGui.QWidget):
 
     def on_redraw(self):
         self.update()
+
+    def getColor(self):
+        return self.colorDict
+
+    def setColor(self, colors):
+        #inititalisisiere Farben
+        self.__bgColor   = colors["bg"]
+        self.__hColor    = colors["h"]
+        self.__mColor    = colors["m"]
+        self.__sColor    = colors["s"]
+        self.__randColor = colors["rand"]
+        self.__textColor = colors["text"]
 
     def setTicken(self, b):
         """
@@ -42,7 +62,7 @@ class UhrAnzeige(QtGui.QWidget):
         self.__bereich = QtCore.QRect(self.__margin, self.__margin, self.__size - 2*self.__margin, self.__size - 2*self.__margin)
 
         paint = QtGui.QPainter(self)
-        paint.setPen(QtGui.QColor(255, 255, 255))
+        paint.setPen(self.__textColor)
         paint.setFont(QtGui.QFont('Monospace', self.__size/7))
         paint.setRenderHint(QtGui.QPainter.Antialiasing)
         paint.eraseRect(self.geometry())
@@ -152,22 +172,20 @@ class UhrAnzeige(QtGui.QWidget):
         stiftS = QtGui.QPen()
         stiftM = QtGui.QPen()
         stiftH = QtGui.QPen()
+        stiftR = QtGui.QPen()
 
-        bgColor = QtGui.QColor(255, 255, 255)
-        zeigerSColor = QtGui.QColor(255, 0, 0)
-        zeigerMColor = QtGui.QColor(0, 0, 0)
-        zeigerHColor = QtGui.QColor(0, 0, 0)
-
-        stiftB.setColor(zeigerHColor)
-        stiftS.setColor(zeigerSColor)
-        stiftM.setColor(zeigerMColor)
-        stiftH.setColor(zeigerHColor)
-        stiftH.setJoinStyle(0x40)
+        stiftB.setColor(self.__bgColor)
+        stiftS.setColor(self.__sColor)
+        stiftM.setColor(self.__mColor)
+        stiftH.setColor(self.__hColor)
+        stiftR.setColor(self.__randColor)
 
         stiftB.setWidthF(self.__size/75)
         stiftS.setWidthF(self.__size/150)
         stiftM.setWidthF(self.__size/150)
         stiftH.setWidthF(self.__size/75)
+        stiftR.setWidthF(self.__size/75)
+
 
         sekundenZeiger = QtCore.QLineF(mitte, nullUhr)
         sekundenZeiger.setAngle(-s + 90)
@@ -185,8 +203,8 @@ class UhrAnzeige(QtGui.QWidget):
         stundenZeiger.setAngle(-h + 90)
         stundenZeiger.setLength(0.6 * stundenZeiger.length())
 
-        paint.setPen(stiftB)
-        paint.setBrush(bgColor)
+        paint.setPen(stiftR)
+        paint.setBrush(self.__bgColor)
         paint.drawChord(self.__bereich, 0, 16 * 360)
 
         paint.setPen(stiftH)
@@ -210,39 +228,36 @@ class UhrAnzeige(QtGui.QWidget):
         m *= 16
         h *= 16
 
-        bgColor = QtGui.QColor(255, 255, 255)
+        stiftR = QtGui.QPen()
+        stiftR.setWidthF(self.__size/120)
+        stiftR.setColor(self.__randColor)
 
         startSAngle = - s -16 + 90*16
         spanSAngle =  32
-        zeigerSColor = QtGui.QColor(255, 0, 0)
 
         startMAngle = - m - 32 + 90*16
         spanMAngle =  64
-        zeigerMColor = QtGui.QColor(30, 30, 30)
 
         startHAngle = - h - 32 + 90*16
         spanHAngle =  64
-        zeigerHColor = QtGui.QColor(0, 0, 0)
 
         paint.setBrush(QtGui.QBrush(QtCore.Qt.SolidPattern))
-        stiftB = QtGui.QPen()
-        stiftB.setColor(zeigerHColor)
-        stiftB.setWidthF(self.__size/120)
 
-        paint.setPen(stiftB)
-        paint.setBrush(bgColor)
+
+        paint.setPen(stiftR)
+        paint.setBrush(self.__bgColor)
         paint.drawChord(self.__bereich, 0, 16 * 360)
 
-        paint.setPen(zeigerHColor)
-        paint.setBrush(zeigerHColor)
+        paint.setPen(self.__hColor)
+        paint.setBrush(self.__hColor)
         paint.drawPie(  self.__size/6, self.__size/6,\
                         self.__size*2/3, self.__size*2/3,\
                         startHAngle, spanHAngle)
 
-        paint.setPen(zeigerMColor)
-        paint.setBrush(zeigerMColor)
+        paint.setPen(self.__mColor)
+        paint.setBrush(self.__mColor)
         paint.drawPie(self.__bereich, startMAngle, spanMAngle)
 
-        paint.setPen(zeigerSColor)
-        paint.setBrush(zeigerSColor)
+        paint.setPen(self.__sColor)
+        paint.setBrush(self.__sColor)
         paint.drawPie(self.__bereich, startSAngle, spanSAngle)

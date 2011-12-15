@@ -6,11 +6,13 @@ import sys
 from Uhrzeit       import *
 from Stoppuhr      import *
 from zahlSelektor  import *
+from colorSelektor import *
 
 #TODO: Dokumentation aller Funktionen
 #TODO: Icons
 #TODO: Color Chooser
 #TODO: Uhr in Fenster zentrieren
+#TODO: Farben, die sich mit der Zeit ändern (unter Schnickschnack)
 
 class UhrWindow(QtGui.QMainWindow):
     styles = { "last" : 0,
@@ -99,6 +101,12 @@ class UhrWindow(QtGui.QMainWindow):
         toggleTickenAction.setCheckable(True)
         toggleTickenAction.triggered.connect(self.toggleTicken)
 
+        iconColor = QtGui.QIcon('color.png')
+        setColorAction = QtGui.QAction(iconColor, '&Farbe', self)
+        setColorAction.setShortcut('c')
+        setColorAction.setCheckable(False)
+        setColorAction.triggered.connect(self.setColor)
+
         uhrDarstellung = QtGui.QActionGroup(self)
         setDigitalAction.setChecked(True)
         uhrDarstellung.addAction(setBinaryAction)
@@ -153,6 +161,8 @@ class UhrWindow(QtGui.QMainWindow):
         menuAna.addAction(setAnalogBahnhofAction)
         menuAna.addSeparator()
         menuAna.addAction(toggleTickenAction)
+        menuDar.addSeparator()
+        menuDar.addAction(setColorAction)
 
         menuSch.addAction(setFreqAction)
 
@@ -192,6 +202,11 @@ class UhrWindow(QtGui.QMainWindow):
         freqChooser = ZahlSelektor(self.disp.getFreq())
         self.connect(freqChooser, QtCore.SIGNAL('signalFreqChanged'), self.disp.setFreq)
         freqChooser.exec_()
+
+    def setColor(self):
+        colorChooser = ColorSelektor(self.a.getColor())
+        self.connect(colorChooser, QtCore.SIGNAL('signalColorChanged'), self.a.setColor)
+        colorChooser.exec_()
 
 def main():
     app = QtGui.QApplication(sys.argv)
