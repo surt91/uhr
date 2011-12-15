@@ -3,8 +3,9 @@
 
 import sys
 
-from uhrAnzeige import *
+from uhrAnzeige  import *
 from uhrFunktion import *
+from zahlWahler  import *
 
 #TODO: Dokumentation aller Funktionen
 #TODO: Icons
@@ -34,17 +35,17 @@ class Stoppuhr(Uhr, QtGui.QWidget):
         self.btn_reset.setMaximumSize(self.btn_reset.sizeHint())
 
         # Layout
-        self.display = QtGui.QHBoxLayout()
-        self.display.addWidget(self.a)
-        self.vbox = QtGui.QVBoxLayout()
-        self.vbox.addStretch(1)
-        self.vbox.addWidget(self.btn)
-        self.vbox.addWidget(self.btn_reset)
-        self.layout = QtGui.QHBoxLayout()
-        self.layout.addLayout(self.display)
-        self.layout.addLayout(self.vbox)
+        display = QtGui.QHBoxLayout()
+        display.addWidget(self.a)
+        vbox = QtGui.QVBoxLayout()
+        vbox.addStretch(1)
+        vbox.addWidget(self.btn)
+        vbox.addWidget(self.btn_reset)
+        layout = QtGui.QHBoxLayout()
+        layout.addLayout(display)
+        layout.addLayout(vbox)
 
-        self.setLayout(self.layout)
+        self.setLayout(layout)
 
         self.show()
 
@@ -63,7 +64,10 @@ class Stoppuhr(Uhr, QtGui.QWidget):
 
     def on_update(self):
         super().on_update()
-        self.a.redraw(self.getSeconds())
+        try:
+            self.a.redraw(self.getSeconds())
+        except:
+            pass
 
 class Uhrzeit(Uhr, QtGui.QWidget):
     def __init__(self):
@@ -83,9 +87,9 @@ class Uhrzeit(Uhr, QtGui.QWidget):
         self.setToolTip('Dies ist eine Uhr')
 
         # Layout
-        self.display = QtGui.QHBoxLayout()
-        self.display.addWidget(self.a)
-        self.setLayout(self.display)
+        display = QtGui.QHBoxLayout()
+        display.addWidget(self.a)
+        self.setLayout(display)
 
         self.show()
 
@@ -94,7 +98,10 @@ class Uhrzeit(Uhr, QtGui.QWidget):
 
     def on_update(self):
         super().on_update()
-        self.a.redraw(self.getSeconds())
+        try:
+            self.a.redraw(self.getSeconds())
+        except:
+            pass
 
 class UhrWindow(QtGui.QMainWindow):
     styles = { "last" : 0,
@@ -211,6 +218,11 @@ class UhrWindow(QtGui.QMainWindow):
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(QtGui.qApp.quit)
 
+        setFreqAction = QtGui.QAction('&Frequenz', self)
+        setFreqAction.setShortcut('f')
+        setFreqAction.setCheckable(False)
+        setFreqAction.triggered.connect(self.setFreq)
+
         uhrFkt = QtGui.QActionGroup(self)
         setUhrzeitAction.setChecked(True)
         uhrFkt.addAction(setUhrzeitAction)
@@ -228,6 +240,7 @@ class UhrWindow(QtGui.QMainWindow):
         menuAna.addAction(toggleTickenAction)
         menuFkt.addAction(setUhrzeitAction)
         menuFkt.addAction(setStoppuhrAction)
+        menuFkt.addAction(setFreqAction)
         menuFkt.addAction(exitAction)
 
         self.setMenuBar(menubar)
@@ -261,6 +274,13 @@ class UhrWindow(QtGui.QMainWindow):
     def toggleTicken(self):
         self.ticken = not self.ticken
         self.disp.a.setTicken(self.ticken)
+
+    def setFreq(self):
+        # TODO: irgendwie den Slider einbringen
+        # per Signal? sobald auf einen knopf im auswahlfenser geklickt wird?
+        pass
+        #~ test = ZahlWahler()
+        #~ self.disp.setFreq(test.ret)
 
 def main():
     app = QtGui.QApplication(sys.argv)

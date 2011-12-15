@@ -18,6 +18,8 @@ class Uhr():
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.__time_update)
 
+        self.setFreq(1)
+
     def uhr_reset(self):
         """
             Setzt die Uhr auf 0 Sekunden zurück
@@ -40,6 +42,13 @@ class Uhr():
         self.__iSeconds = x
         self.__c.tick.emit()
 
+    def setFreq(self, f):
+        """
+            Setzt die die Frequenz in Hz
+        """
+        self.__fFreq = f
+        self.__c.tick.emit()
+
     def getSeconds(self):
         """
             gibt die Sekundenzahl zurück
@@ -50,7 +59,7 @@ class Uhr():
         """
             Startet den Timer; die Uhr tickt nach dieser Funktion
         """
-        self.timer.start(1000)
+        self.timer.start(1000/self.__fFreq)
 
     def stopUhr(self):
         """
