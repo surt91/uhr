@@ -276,11 +276,9 @@ class UhrWindow(QtGui.QMainWindow):
         self.disp.a.setTicken(self.ticken)
 
     def setFreq(self):
-        # TODO: irgendwie den Slider einbringen
-        # per Signal? sobald auf einen knopf im auswahlfenser geklickt wird?
-        pass
-        #~ test = ZahlWahler()
-        #~ self.disp.setFreq(test.ret)
+        freqChooser = ZahlWahler(self.disp.getFreq())
+        self.connect(freqChooser, QtCore.SIGNAL('signalFreqChanged'), self.disp.setFreq)
+        freqChooser.exec_()
 
 def main():
     app = QtGui.QApplication(sys.argv)

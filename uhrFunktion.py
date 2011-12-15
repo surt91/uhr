@@ -47,7 +47,15 @@ class Uhr():
             Setzt die die Frequenz in Hz
         """
         self.__fFreq = f
+        self.stopUhr()
+        self.startUhr()
         self.__c.tick.emit()
+
+    def getFreq(self):
+        """
+            gibt die aktuelle Frequenz aus
+        """
+        return self.__fFreq
 
     def getSeconds(self):
         """
