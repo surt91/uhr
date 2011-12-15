@@ -10,9 +10,8 @@ from colorSelektor import *
 
 #TODO: Dokumentation aller Funktionen
 #TODO: Icons
-#TODO: Color Chooser
 #TODO: Uhr in Fenster zentrieren
-#TODO: Farben, die sich mit der Zeit ändern (unter Schnickschnack)
+#TODO: Regenbogen so ändern, dass er das Wellenlängen spektrum des Lichts durchläuft
 
 class UhrWindow(QtGui.QMainWindow):
     styles = { "last" : 0,
@@ -26,6 +25,7 @@ class UhrWindow(QtGui.QMainWindow):
         self.func   = self.funcs["uhrzeit"]
 
         self.ticken = False
+        self.regenbogen = False
 
         self.initUI()
 
@@ -139,6 +139,11 @@ class UhrWindow(QtGui.QMainWindow):
         setFreqAction.setCheckable(False)
         setFreqAction.triggered.connect(self.setFreq)
 
+        toggleRegenbogenAction = QtGui.QAction('Regenbogenzeiger', self)
+        toggleRegenbogenAction.setShortcut('r')
+        toggleRegenbogenAction.setCheckable(True)
+        toggleRegenbogenAction.triggered.connect(self.toggleRegenbogen)
+
         uhrFkt = QtGui.QActionGroup(self)
         setUhrzeitAction.setChecked(True)
         uhrFkt.addAction(setUhrzeitAction)
@@ -165,6 +170,7 @@ class UhrWindow(QtGui.QMainWindow):
         menuDar.addAction(setColorAction)
 
         menuSch.addAction(setFreqAction)
+        menuSch.addAction(toggleRegenbogenAction)
 
         self.setMenuBar(menubar)
 
@@ -197,6 +203,10 @@ class UhrWindow(QtGui.QMainWindow):
     def toggleTicken(self):
         self.ticken = not self.ticken
         self.disp.a.setTicken(self.ticken)
+
+    def toggleRegenbogen(self):
+        self.regenbogen = not self.regenbogen
+        self.disp.a.setRegenbogen(self.regenbogen)
 
     def setFreq(self):
         freqChooser = ZahlSelektor(self.disp.getFreq())

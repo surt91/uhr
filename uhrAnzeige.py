@@ -9,6 +9,7 @@ class UhrAnzeige(QtGui.QWidget):
         super().__init__()
 
         self.setTicken(False)
+        self.setRegenbogen(False)
 
         self.__iSeconds = 0
 
@@ -22,13 +23,15 @@ class UhrAnzeige(QtGui.QWidget):
                           "m"    : QtGui.QColor(  0,   0,   0),
                           "h"    : QtGui.QColor(  0,   0,   0),
                           "rand" : QtGui.QColor(  0,   0,   0),
-                          "text" : QtGui.QColor(255, 255, 255), }
+                          "text" : QtGui.QColor(255, 255, 255) }
         self.setColor(self.colorDict)
 
         self.show()
 
     def redraw(self, iSeconds):
         self.__iSeconds = iSeconds
+        if self.__pRegenbogen:
+            self.__changeColorRegenbogen(iSeconds)
         self.on_redraw()
 
     def on_redraw(self):
@@ -46,6 +49,37 @@ class UhrAnzeige(QtGui.QWidget):
         self.__randColor = colors["rand"]
         self.__textColor = colors["text"]
 
+    def __changeColorRegenbogen(self, x):
+        now = self.colorDict
+        for n in ["h","m","s","text"]:
+            r = now[n].red()
+            g = now[n].green()
+            b = now[n].blue()
+            r,g,b = self.__regenbogenNextColor(r, g, b, 6)
+            now[n].setRed(r)
+            now[n].setGreen(g)
+            now[n].setBlue(b)
+        self.setColor(now)
+
+    def __regenbogenNextColor(self, r, g, b, geschwindigkeit = 1):
+        if   r == 255 and g  < 255 and b == 0:
+            g += 1 * geschwindigkeit
+        elif g == 255 and b  < 255 and r == 0:
+            b += 1 * geschwindigkeit
+        elif b == 255 and r  < 255 and g == 0:
+            r += 1 * geschwindigkeit
+        elif r <= 255 and g == 255 and b == 0:
+            r -= 1 * geschwindigkeit
+        elif g <= 255 and b == 255 and r == 0:
+            g -= 1 * geschwindigkeit
+        elif b <= 255 and r == 255 and g == 0:
+            b -= 1 * geschwindigkeit
+        else:
+            r = 255
+            g = 0
+            b = 0
+        return r, g, b
+
     def setTicken(self, b):
         """
             Schaltet ein Property, dass einstellt, ob der Minuten/Stunden-
@@ -54,6 +88,23 @@ class UhrAnzeige(QtGui.QWidget):
             b: boolean
         """
         self.__pTicken = b
+        self.on_redraw()
+
+    def setRegenbogen(self, b):
+        """
+            Schaltet ein Property, dass einstellt, ob der Minuten/Stunden-
+            Zeiger ihre Farbe mit der Zeit ändern sollen.
+
+            b: boolean
+        """
+        self.__pRegenbogen = b
+        try:
+            self.colorDict["h"]    = QtGui.QColor(255,   0,   0)
+            self.colorDict["m"]    = QtGui.QColor(  0, 255,   0)
+            self.colorDict["s"]    = QtGui.QColor(  0,   0, 255)
+            self.colorDict["text"] = QtGui.QColor(255,   0,   0)
+        except:
+            pass
         self.on_redraw()
 
     def paintEvent(self, event):
