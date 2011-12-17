@@ -13,9 +13,6 @@ class UhrAnzeige(QtGui.QWidget):
 
         self.__iSeconds = 0
 
-        self.styles = { "binary":0,    "digital":1,
-                        "analogArc":2, "analogBahnhof":3}
-
         self.setMinimumSize(100,100)
 
         self.colorDict = {"bg"   : QtGui.QColor(255, 255, 255),
@@ -23,7 +20,8 @@ class UhrAnzeige(QtGui.QWidget):
                           "m"    : QtGui.QColor(  0,   0,   0),
                           "h"    : QtGui.QColor(  0,   0,   0),
                           "rand" : QtGui.QColor(  0,   0,   0),
-                          "text" : QtGui.QColor(255, 255, 255) }
+                          "text" : QtGui.QColor(255, 255, 255)}
+
         self.setColor(self.colorDict)
 
         self.show()
@@ -78,6 +76,9 @@ class UhrAnzeige(QtGui.QWidget):
             r = 255
             g = 0
             b = 0
+
+        [r,g,b]=[255 if i>255-geschwindigkeit else 0 if i < -1+geschwindigkeit else i%256 for i in [r,g,b]]
+
         return r, g, b
 
     def setTicken(self, b):
@@ -135,6 +136,20 @@ class UhrAnzeige(QtGui.QWidget):
         else:
             raise AttributeError
 
+    def __drawBackground(self, paint, event):
+        """
+            Überprüft das pBGStyle Property, welcher Style gewählt ist und
+            startet die entsprechende Zeichenfunktion
+        """
+        if self.__pBGStyle == self.bgStyles["plain"]:
+            self.__bgPlainStyle(paint, event)
+        elif self.__pBGStyle == self.bgStyles["zahnrad"]:
+            self.__bgZahnradStyle(paint, event)
+        elif self.__pBGStyle == self.bgStyles["sonne"]:
+            self.__bgSonneStyle(paint, event)
+        else:
+            raise AttributeError
+
     def setDigital(self):
         self.setToolTip("hh:mm:ss")
         self.__pStyle = self.styles["digital"]
@@ -161,6 +176,17 @@ class UhrAnzeige(QtGui.QWidget):
                         klein*60/2Pi -> Minuten\n\
                         dick*24/2Pi  -> Stunden")
 
+    def setBGPlain(self):
+        self.__pBGStyle = self.bgStyles["plain"]
+        self.on_redraw()
+
+    def setBGZahnrad(self):
+        self.__pBGStyle = self.bgStyles["zahnrad"]
+        self.on_redraw()
+
+    def setBGSonne(self):
+        self.__pBGStyle = self.bgStyles["sonne"]
+        self.on_redraw()
 
     def __analog(self, x):
         """
@@ -213,29 +239,25 @@ class UhrAnzeige(QtGui.QWidget):
         """
             Zeichenfunktion für Bahnhofsuhr
         """
+        self.__drawBackground(paint, event)
+
         h,m,s = self.__analog(self.__iSeconds)
 
         mitte = QtCore.QPointF(self.__bereich.center())
         lange = self.__size/2 - self.__margin
         nullUhr = QtCore.QPointF(lange,0)
 
-        stiftB = QtGui.QPen()
         stiftS = QtGui.QPen()
         stiftM = QtGui.QPen()
         stiftH = QtGui.QPen()
-        stiftR = QtGui.QPen()
 
-        stiftB.setColor(self.__bgColor)
         stiftS.setColor(self.__sColor)
         stiftM.setColor(self.__mColor)
         stiftH.setColor(self.__hColor)
-        stiftR.setColor(self.__randColor)
 
-        stiftB.setWidthF(self.__size/75)
         stiftS.setWidthF(self.__size/150)
         stiftM.setWidthF(self.__size/150)
         stiftH.setWidthF(self.__size/75)
-        stiftR.setWidthF(self.__size/75)
 
         sekundenZeiger1 = QtCore.QLineF(mitte, nullUhr)
         sekundenZeiger1.setAngle(-s + 90)
@@ -261,10 +283,6 @@ class UhrAnzeige(QtGui.QWidget):
         stundenZeiger.setAngle(-h + 90)
         stundenZeiger.setLength(0.6 * stundenZeiger.length())
 
-        paint.setPen(stiftR)
-        paint.setBrush(self.__bgColor)
-        paint.drawChord(self.__bereich, 0, 16 * 360)
-
         paint.setPen(stiftH)
         paint.drawLine(stundenZeiger)
 
@@ -282,14 +300,12 @@ class UhrAnzeige(QtGui.QWidget):
         """
             Zeichenfunktion für minimalistische "Winkeluhr"
         """
+        self.__drawBackground(paint, event)
+
         h,m,s = self.__analog(self.__iSeconds)
         s *= 16
         m *= 16
         h *= 16
-
-        stiftR = QtGui.QPen()
-        stiftR.setWidthF(self.__size/120)
-        stiftR.setColor(self.__randColor)
 
         startSAngle = - s -16 + 90*16
         spanSAngle =  32
@@ -299,13 +315,6 @@ class UhrAnzeige(QtGui.QWidget):
 
         startHAngle = - h - 32 + 90*16
         spanHAngle =  64
-
-        paint.setBrush(QtGui.QBrush(QtCore.Qt.SolidPattern))
-
-
-        paint.setPen(stiftR)
-        paint.setBrush(self.__bgColor)
-        paint.drawChord(self.__bereich, 0, 16 * 360)
 
         paint.setPen(self.__hColor)
         paint.setBrush(self.__hColor)
@@ -320,3 +329,20 @@ class UhrAnzeige(QtGui.QWidget):
         paint.setPen(self.__sColor)
         paint.setBrush(self.__sColor)
         paint.drawPie(self.__bereich, startSAngle, spanSAngle)
+
+    def __bgPlainStyle(self, paint, event):
+        stiftR = QtGui.QPen()
+        stiftR.setColor(self.__randColor)
+        stiftR.setWidthF(self.__size/75)
+
+        paint.setBrush(QtGui.QBrush(QtCore.Qt.SolidPattern))
+
+        paint.setPen(stiftR)
+        paint.setBrush(self.__bgColor)
+        paint.drawChord(self.__bereich, 0, 16 * 360)
+
+    def __bgZahnradStyle(self, paint, event):
+        pass
+
+    def __bgSonneStyle(self, paint, event):
+        pass

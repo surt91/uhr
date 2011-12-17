@@ -14,15 +14,25 @@ from colorSelektor import *
 #TODO: Regenbogen so ändern, dass er das Wellenlängen spektrum des Lichts durchläuft
 
 class UhrWindow(QtGui.QMainWindow):
-    styles = { "last" : 0,
-               "binary":1,    "digital":2,
-               "analogArc":3, "analogBahnhof":4}
-    funcs  = { "uhrzeit":0,   "stoppuhr":1}
+    styles           = {"last"         : 0,
+                        "binary"       : 1,
+                        "digital"      : 2,
+                        "analogArc"    : 3,
+                        "analogBahnhof": 4}
+
+    bgStyles         = {"last"         : 0,
+                        "plain"        : 1,
+                        "zahnrad"      : 2,
+                        "sonne"        : 3}
+
+    funcs            = {"uhrzeit"      : 0,
+                        "stoppuhr"     : 1}
     def __init__(self):
         super().__init__()
 
-        self.style  = self.styles["digital"]
-        self.func   = self.funcs["uhrzeit"]
+        self.style   = self.styles["digital"]
+        self.bgStyle = self.bgStyles["plain"]
+        self.func    = self.funcs["uhrzeit"]
 
         self.ticken = False
         self.regenbogen = False
@@ -37,15 +47,22 @@ class UhrWindow(QtGui.QMainWindow):
 
         self.setFunc()
         self.setStyle()
+        self.setBGStyle()
         self.makeMenu()
 
         self.show()
 
     def setStyle(self, style = styles["last"]):
+        try:
+            x = self.a.styles
+        except AttributeError:
+            self.a.styles = self.styles
+
         if style == self.styles["last"]:
             style = self.style
         else:
             self.style = style
+
         if self.style == self.styles["binary"]:
             self.a.setBinary()
         elif self.style == self.styles["digital"]:
@@ -54,6 +71,26 @@ class UhrWindow(QtGui.QMainWindow):
             self.a.setAnalogArc()
         elif self.style == self.styles["analogBahnhof"]:
             self.a.setAnalogBahnhof()
+        else:
+            raise AttributeError
+
+    def setBGStyle(self, style = bgStyles["last"]):
+        try:
+            x = self.a.bgStyles
+        except AttributeError:
+            self.a.bgStyles = self.bgStyles
+
+        if style == self.bgStyles["last"]:
+            style = self.bgStyle
+        else:
+            self.bgStyle = style
+
+        if self.bgStyle == self.bgStyles["plain"]:
+            self.a.setBGPlain()
+        elif self.bgStyle == self.bgStyles["zahnrad"]:
+            self.a.setBGZahnrad()
+        elif self.bgStyle == self.bgStyles["sonne"]:
+            self.a.setBGZahnrad()
         else:
             raise AttributeError
 
