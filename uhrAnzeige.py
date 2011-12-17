@@ -147,6 +147,8 @@ class UhrAnzeige(QtGui.QWidget):
             self.__bgZahnradStyle(paint, event)
         elif self.__pBGStyle == self.bgStyles["sonne"]:
             self.__bgSonneStyle(paint, event)
+        elif self.__pBGStyle == self.bgStyles["kein"]:
+            self.__bgKeinStyle(paint, event)
         else:
             raise AttributeError
 
@@ -186,6 +188,11 @@ class UhrAnzeige(QtGui.QWidget):
 
     def setBGSonne(self):
         self.__pBGStyle = self.bgStyles["sonne"]
+        self.__randColor = QtGui.QColor(255, 255,   0)
+        self.on_redraw()
+
+    def setBGKein(self):
+        self.__pBGStyle = self.bgStyles["kein"]
         self.on_redraw()
 
     def __analog(self, x):
@@ -342,7 +349,82 @@ class UhrAnzeige(QtGui.QWidget):
         paint.drawChord(self.__bereich, 0, 16 * 360)
 
     def __bgZahnradStyle(self, paint, event):
-        pass
+        i = self.__iSeconds
+        laenge1 = self.__size/12
+        x1 = self.__size/7*5 - self.__margin
+        y1 = self.__size/7*5 - self.__margin
+        dx1 = laenge1
+        dy1 = laenge1
+        boundingBox1 = QtCore.QRect(x1, y1, dx1, dy1)
+
+        laenge2 = laenge1*1.5
+        x2 = x1 + laenge1*33/36
+        y2 = y1 - laenge1*33/36
+        dx2 = laenge2
+        dy2 = laenge2
+        boundingBox2 = QtCore.QRect(x2, y2, dx2, dy2)
+
+        startAngle = - i*16*66
+        spanAngle =  32
+
+        stiftR = QtGui.QPen()
+        stiftR.setColor(self.__randColor)
+        stiftR.setWidthF(self.__size/60)
+
+        paint.setBrush(QtGui.QBrush(QtCore.Qt.SolidPattern))
+
+        paint.setPen(stiftR)
+        paint.setBrush(self.__bgColor)
+        paint.drawChord(self.__bereich, 0, 16 * 360)
+
+        anz = 12
+
+        for phi in [i*360/anz*16+startAngle for i in range(anz+1)]:
+            paint.drawPie(boundingBox1, phi, spanAngle)
+
+        for phi in [-i*360/anz*16-startAngle+16*180/anz for i in range(anz+1)]:
+            paint.drawPie(boundingBox2, phi, spanAngle)
 
     def __bgSonneStyle(self, paint, event):
+        i = self.__iSeconds
+        radius = self.__size/6*2
+        mitte = QtCore.QPointF(self.__bereich.center())
+        x = mitte.x() - radius
+        y = mitte.y() - radius
+        dx = radius * 2
+        dy = radius * 2
+        boundingBox = QtCore.QRect(x, y, dx, dy)
+        boundingBox2= QtCore.QRect(x+x/2+dx/5/2, y+dy/5/2, dx*4/5, dy*4/5)
+
+        stiftR = QtGui.QPen()
+        stiftR.setColor(self.__randColor)
+        stiftR.setWidthF(self.__size/1000)
+
+        paint.setBrush(QtGui.QBrush(QtCore.Qt.SolidPattern))
+
+        paint.setPen(stiftR)
+        paint.setBrush(self.__bgColor)
+        paint.drawChord(self.__bereich, 0, 16 * 360)
+
+        tageszeit = self.__iSeconds / 3600 % 24
+        if tageszeit > 6 and tageszeit < 18:
+        # Sonne
+            stiftR.setWidthF(self.__size/15)
+            anz = 64
+            startAngle = self.__iSeconds*65%128
+            spanAngle =  32
+            paint.setBrush(self.__randColor)
+            for phi in [i*360/anz*16+startAngle for i in range(anz+1)]:
+                paint.drawPie(boundingBox, phi, spanAngle)
+        else:
+        #Mond
+            paint.setBrush(self.__randColor)
+            paint.drawChord(boundingBox, 0, 16 * 360)
+
+            stiftR.setColor(self.__bgColor)
+            paint.setPen(stiftR)
+            paint.setBrush(self.__bgColor)
+            paint.drawChord(boundingBox2, 0, 16 * 360)
+
+    def __bgKeinStyle(self, paint, event):
         pass
