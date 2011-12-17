@@ -23,7 +23,8 @@ class UhrWindow(QtGui.QMainWindow):
     bgStyles         = {"last"         : 0,
                         "plain"        : 1,
                         "zahnrad"      : 2,
-                        "sonne"        : 3}
+                        "sonne"        : 3,
+                        "kein"         : 4}
 
     funcs            = {"uhrzeit"      : 0,
                         "stoppuhr"     : 1}
@@ -90,7 +91,9 @@ class UhrWindow(QtGui.QMainWindow):
         elif self.bgStyle == self.bgStyles["zahnrad"]:
             self.a.setBGZahnrad()
         elif self.bgStyle == self.bgStyles["sonne"]:
-            self.a.setBGZahnrad()
+            self.a.setBGSonne()
+        elif self.bgStyle == self.bgStyles["kein"]:
+            self.a.setBGKein()
         else:
             raise AttributeError
 
@@ -143,6 +146,26 @@ class UhrWindow(QtGui.QMainWindow):
         setColorAction.setShortcut('c')
         setColorAction.setCheckable(False)
         setColorAction.triggered.connect(self.setColor)
+
+        iconBGKein = QtGui.QIcon('BGKein.png')
+        setBGKeinAction = QtGui.QAction(iconBGKein, 'keiner', self)
+        setBGKeinAction.setCheckable(False)
+        setBGKeinAction.triggered.connect(self.setBGKein)
+
+        iconBGPlain = QtGui.QIcon('BGPlain.png')
+        setBGPlainAction = QtGui.QAction(iconBGPlain, 'einfarbig', self)
+        setBGPlainAction.setCheckable(False)
+        setBGPlainAction.triggered.connect(self.setBGPlain)
+
+        iconBGZahnrad = QtGui.QIcon('BGZahnrad.png')
+        setBGZahnradAction = QtGui.QAction(iconBGZahnrad, 'Zahnrad', self)
+        setBGZahnradAction.setCheckable(False)
+        setBGZahnradAction.triggered.connect(self.setBGZahnrad)
+
+        iconBGSonne = QtGui.QIcon('BGSonne.png')
+        setBGSonneAction = QtGui.QAction(iconBGSonne, 'Sonne', self)
+        setBGSonneAction.setCheckable(False)
+        setBGSonneAction.triggered.connect(self.setBGSonne)
 
         uhrDarstellung = QtGui.QActionGroup(self)
         setDigitalAction.setChecked(True)
@@ -203,6 +226,11 @@ class UhrWindow(QtGui.QMainWindow):
         menuAna.addAction(setAnalogBahnhofAction)
         menuAna.addSeparator()
         menuAna.addAction(toggleTickenAction)
+        menuAna.addSeparator()
+        menuAna.addAction(setBGKeinAction)
+        menuAna.addAction(setBGPlainAction)
+        menuAna.addAction(setBGZahnradAction)
+        menuAna.addAction(setBGSonneAction)
         menuDar.addSeparator()
         menuDar.addAction(setColorAction)
 
@@ -254,6 +282,18 @@ class UhrWindow(QtGui.QMainWindow):
         colorChooser = ColorSelektor(self.a.getColor())
         self.connect(colorChooser, QtCore.SIGNAL('signalColorChanged'), self.a.setColor)
         colorChooser.exec_()
+
+    def setBGKein(self):
+        self.setBGStyle(self.bgStyles["kein"])
+
+    def setBGPlain(self):
+        self.setBGStyle(self.bgStyles["plain"])
+
+    def setBGZahnrad(self):
+        self.setBGStyle(self.bgStyles["zahnrad"])
+
+    def setBGSonne(self):
+        self.setBGStyle(self.bgStyles["sonne"])
 
 def main():
     app = QtGui.QApplication(sys.argv)
