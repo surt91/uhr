@@ -6,14 +6,10 @@ from uhrFunktion import *
 
 class Uhrzeit(Uhr, QtGui.QWidget):
     def __init__(self):
-        import time
         super().__init__()
 
-        now=time.localtime()
-        now = now[3]*3600+now[4]*60+now[5]
-
         self.a = UhrAnzeige()
-        self.setTime(now)
+        self.setTimeNow()
         self.startUhr()
 
         self.initUI()

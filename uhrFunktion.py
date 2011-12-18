@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt4 import QtGui, QtCore
+import time
 
 class Uhr():
     def __init__(self):
@@ -40,6 +41,11 @@ class Uhr():
         """
         self.__iSeconds = x
         self.emit(self.signalTick)
+
+    def setTimeNow(self):
+        now=time.localtime()
+        now = now[3]*3600+now[4]*60+now[5]
+        self.setTime(now)
 
     def setFreq(self, f):
         """

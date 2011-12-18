@@ -188,6 +188,11 @@ class UhrWindow(QtGui.QMainWindow):
         setUhrzeitAction.setCheckable(True)
         setUhrzeitAction.triggered.connect(self.setUhrzeit)
 
+        iconSync = QtGui.QIcon('sync.png')
+        setSyncAction = QtGui.QAction(iconSync, '&synchronisiere', self)
+        setSyncAction.setStatusTip('setzt die Uhrzeit auf die aktuelle Systemzeit')
+        setSyncAction.triggered.connect(self.setSync)
+
         iconExit = QtGui.QIcon('exit.png')
         exitAction = QtGui.QAction(iconExit, '&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
@@ -217,6 +222,9 @@ class UhrWindow(QtGui.QMainWindow):
 
         menuFkt.addAction(setUhrzeitAction)
         menuFkt.addAction(setStoppuhrAction)
+        menuFkt.addSeparator()
+        menuFkt.addAction(setSyncAction)
+        menuFkt.addSeparator()
         menuFkt.addAction(exitAction)
 
         menuDar.addAction(setDigitalAction)
@@ -296,6 +304,9 @@ class UhrWindow(QtGui.QMainWindow):
 
     def setBGSonne(self):
         self.setBGStyle(self.bgStyles["sonne"])
+
+    def setSync(self):
+        self.disp.setTimeNow()
 
 def main():
     app = QtGui.QApplication(sys.argv)
