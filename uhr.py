@@ -12,6 +12,7 @@ from colorSelektor import *
 #TODO: Icons
 #TODO: Uhr in Fenster zentrieren
 #TODO: Regenbogen so ändern, dass er das Wellenlängen spektrum des Lichts durchläuft
+#TODO: Sternezeit
 
 class UhrWindow(QtGui.QMainWindow):
     styles           = {"last"         : 0,
@@ -190,7 +191,7 @@ class UhrWindow(QtGui.QMainWindow):
 
         iconSync = QtGui.QIcon('sync.png')
         setSyncAction = QtGui.QAction(iconSync, '&synchronisiere', self)
-        setSyncAction.setStatusTip('setzt die Uhrzeit auf die aktuelle Systemzeit')
+        setSyncAction.setStatusTip('setzt die Uhrzeit auf die aktuelle Systemzeit und setzt die Frequenz auf 1Hz')
         setSyncAction.triggered.connect(self.setSync)
 
         iconExit = QtGui.QIcon('exit.png')
@@ -214,6 +215,24 @@ class UhrWindow(QtGui.QMainWindow):
         uhrFkt.addAction(setUhrzeitAction)
         uhrFkt.addAction(setStoppuhrAction)
 
+        iconSI = QtGui.QIcon('si.png')
+        setSIAction = QtGui.QAction(iconSI, '&SI', self)
+        setSIAction.setShortcut('s')
+        setSIAction.setStatusTip('SI')
+        setSIAction.setCheckable(True)
+        setSIAction.triggered.connect(self.setSI)
+        iconDezimal = QtGui.QIcon('dezimal.png')
+        setDezimalAction = QtGui.QAction(iconDezimal, '&Dezimal', self)
+        setDezimalAction.setShortcut('u')
+        setDezimalAction.setStatusTip('Dezimal')
+        setDezimalAction.setCheckable(True)
+        setDezimalAction.triggered.connect(self.setDezimal)
+
+        uhrSI = QtGui.QActionGroup(self)
+        setSIAction.setChecked(True)
+        uhrSI.addAction(setSIAction)
+        uhrSI.addAction(setDezimalAction)
+
         # Menüs
         menubar = QtGui.QMenuBar(self)
         menuFkt = menubar.addMenu('Funktion')
@@ -224,6 +243,9 @@ class UhrWindow(QtGui.QMainWindow):
         menuFkt.addAction(setStoppuhrAction)
         menuFkt.addSeparator()
         menuFkt.addAction(setSyncAction)
+        menuFkt.addSeparator()
+        menuFkt.addAction(setDezimalAction)
+        menuFkt.addAction(setSIAction)
         menuFkt.addSeparator()
         menuFkt.addAction(exitAction)
 
@@ -288,6 +310,14 @@ class UhrWindow(QtGui.QMainWindow):
         self.connect(freqChooser, QtCore.SIGNAL('signalFreqChanged'), self.disp.setFreq)
         freqChooser.exec_()
 
+    def setSI(self):
+        self.disp.setFreq(1)
+        self.a.setFaktor("si")
+
+    def setDezimal(self):
+        self.disp.setFreq(1/0.864)
+        self.a.setFaktor("dez")
+
     def setColor(self):
         colorChooser = ColorSelektor(self.a.getColor())
         self.connect(colorChooser, QtCore.SIGNAL('signalColorChanged'), self.a.setColor)
@@ -307,6 +337,7 @@ class UhrWindow(QtGui.QMainWindow):
 
     def setSync(self):
         self.disp.setTimeNow()
+        self.disp.setFreq(1)
 
 def main():
     app = QtGui.QApplication(sys.argv)

@@ -24,7 +24,21 @@ class UhrAnzeige(QtGui.QWidget):
 
         self.setColor(self.colorDict)
 
+        self.setFaktor("si")
+
         self.show()
+
+    def setFaktor(self, t):
+        if t == "si":
+            self.spm = 60
+            self.mph = 60
+            self.sph = 3600
+            self.hpd = 24
+        elif t == "dez":
+            self.spm = 100
+            self.mph = 100
+            self.sph = 10000
+            self.hpd = 10
 
     def redraw(self, iSeconds):
         self.__iSeconds = iSeconds
@@ -202,14 +216,14 @@ class UhrAnzeige(QtGui.QWidget):
             Dabei sind die Winkel in Winkelmaß angegeben
         """
         if self.__pTicken:
-            s = (x%60)/60. * 360
-            m = ((x//60)%60)/60. * 360
-            h = ((x//3600)%12)/12. * 360
+            s = (x%self.spm)/float(self.spm) * 360
+            m = ((x//self.spm)%self.mph)/float(self.mph) * 360
+            h = ((x//self.sph)%self.hpd/2)/float(self.hpd)/2 * 360
             return h,m,s
         else:
-            s = (x%60)/60. * 360
-            m = ((x/60.)%60)/60. * 360
-            h = ((x/3600.)%12)/12. * 360
+            s = (x%self.spm)/float(self.spm) * 360
+            m = ((x//float(self.spm))%self.mph)/float(self.mph) * 360
+            h = ((x//float(self.sph))%self.hpd/2)/float(self.hpd)/2 * 360
             return h,m,s
 
     def __digital(self, x):
@@ -218,7 +232,7 @@ class UhrAnzeige(QtGui.QWidget):
             format zurück.
         """
         return "{0:02d}:{1:02d}:{2:02d}"\
-                                   .format((x//3600)%24,(x//60)%60,x%60)
+       .format((x//self.sph)%self.hpd,(x//self.spm)%self.mph,x%self.spm)
 
     def __binary(self, x):
         """
@@ -226,7 +240,7 @@ class UhrAnzeige(QtGui.QWidget):
             format zurück.
         """
         return "\n {0:05b}\n{1:06b}\n{2:06b}\n"\
-                                   .format((x//3600)%24,(x//60)%60,x%60)
+       .format((x//self.sph)%self.hpd,(x//self.spm)%self.mph,x%self.spm)
 
     def __digitalStyle(self, paint, event):
         """
