@@ -12,15 +12,16 @@ from colorSelektor import *
 #TODO: Icons
 #TODO: Uhr in Fenster zentrieren
 #TODO: Regenbogen so ändern, dass er das Wellenlängen spektrum des Lichts durchläuft
-#TODO: Sternezeit
-#TODO: Unix Zeit
+#TODO: Sternezeit kontrollieren
 
 class UhrWindow(QtGui.QMainWindow):
     styles           = {"last"         : 0,
                         "binary"       : 1,
                         "digital"      : 2,
                         "analogArc"    : 3,
-                        "analogBahnhof": 4}
+                        "analogBahnhof": 4,
+                        "sternzeit"    : 5,
+                        "unix"     : 6}
 
     bgStyles         = {"last"         : 0,
                         "plain"        : 1,
@@ -74,6 +75,10 @@ class UhrWindow(QtGui.QMainWindow):
             self.a.setAnalogArc()
         elif self.style == self.styles["analogBahnhof"]:
             self.a.setAnalogBahnhof()
+        elif self.style == self.styles["sternzeit"]:
+            self.a.setSternzeit()
+        elif self.style == self.styles["unix"]:
+            self.a.setUnix()
         else:
             raise AttributeError
 
@@ -127,6 +132,16 @@ class UhrWindow(QtGui.QMainWindow):
         setDigitalAction.setStatusTip('Digital Uhr')
         setDigitalAction.setCheckable(True)
         setDigitalAction.triggered.connect(self.setDigital)
+        iconUnix = QtGui.QIcon('unix.png')
+        setUnixAction = QtGui.QAction(iconUnix, '&Unix', self)
+        setUnixAction.setStatusTip('Unix Uhr')
+        setUnixAction.setCheckable(True)
+        setUnixAction.triggered.connect(self.setUnix)
+        iconSternzeit = QtGui.QIcon('sternzeit.png')
+        setSternzeitAction = QtGui.QAction(iconSternzeit, '&Sternzeit', self)
+        setSternzeitAction.setStatusTip('Sternzeit Uhr')
+        setSternzeitAction.setCheckable(True)
+        setSternzeitAction.triggered.connect(self.setSternzeit)
 
         iconAnalog = QtGui.QIcon('analog.png')
         setAnalogArcAction = QtGui.QAction(iconAnalog, '&Arc', self)
@@ -137,6 +152,15 @@ class UhrWindow(QtGui.QMainWindow):
         setAnalogBahnhofAction.setShortcut('h')
         setAnalogBahnhofAction.setCheckable(True)
         setAnalogBahnhofAction.triggered.connect(self.setAnalogBahnhof)
+
+        uhrDarstellung = QtGui.QActionGroup(self)
+        setDigitalAction.setChecked(True)
+        uhrDarstellung.addAction(setBinaryAction)
+        uhrDarstellung.addAction(setDigitalAction)
+        uhrDarstellung.addAction(setUnixAction)
+        uhrDarstellung.addAction(setSternzeitAction)
+        uhrDarstellung.addAction(setAnalogArcAction)
+        uhrDarstellung.addAction(setAnalogBahnhofAction)
 
         toggleTickenAction = QtGui.QAction('&Ticken', self)
         toggleTickenAction.setShortcut('t')
@@ -168,14 +192,6 @@ class UhrWindow(QtGui.QMainWindow):
         setBGSonneAction = QtGui.QAction(iconBGSonne, 'Sonne', self)
         setBGSonneAction.setCheckable(False)
         setBGSonneAction.triggered.connect(self.setBGSonne)
-
-        uhrDarstellung = QtGui.QActionGroup(self)
-        setDigitalAction.setChecked(True)
-        uhrDarstellung.addAction(setBinaryAction)
-        uhrDarstellung.addAction(setDigitalAction)
-        uhrDarstellung.addAction(setAnalogArcAction)
-        uhrDarstellung.addAction(setAnalogBahnhofAction)
-
 
         iconStoppuhr = QtGui.QIcon('stoppuhr.png')
         setStoppuhrAction = QtGui.QAction(iconStoppuhr, '&Stoppuhr', self)
@@ -231,8 +247,6 @@ class UhrWindow(QtGui.QMainWindow):
         setSIAction.setChecked(True)
         uhrSI.addAction(setSIAction)
         uhrSI.addAction(setDezimalZeitAction)
-        #~ uhrSI.addAction(setSternZeitAction)
-        #~ uhrSI.addAction(setUnixZeitAction)
 
         # Menüs
         menubar = QtGui.QMenuBar(self)
@@ -252,6 +266,8 @@ class UhrWindow(QtGui.QMainWindow):
 
         menuDar.addAction(setDigitalAction)
         menuDar.addAction(setBinaryAction)
+        menuDar.addAction(setUnixAction)
+        menuDar.addAction(setSternzeitAction)
         menuAna = menuDar.addMenu("Analog")
         menuAna.addAction(setAnalogArcAction)
         menuAna.addAction(setAnalogBahnhofAction)
@@ -275,6 +291,12 @@ class UhrWindow(QtGui.QMainWindow):
 
     def setDigital(self):
         self.setStyle(self.styles["digital"])
+
+    def setUnix(self):
+        self.setStyle(self.styles["unix"])
+
+    def setSternzeit(self):
+        self.setStyle(self.styles["sternzeit"])
 
     def setAnalogArc(self):
         self.setStyle(self.styles["analogArc"])

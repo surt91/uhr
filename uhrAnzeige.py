@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import math
+import time
+
 from PyQt4 import QtGui, QtCore
 
 class UhrAnzeige(QtGui.QWidget):
@@ -149,6 +151,10 @@ class UhrAnzeige(QtGui.QWidget):
             self.__digitalStyle(paint, event)
         elif self.__pStyle == self.styles["binary"]:
             self.__binaryStyle(paint, event)
+        elif self.__pStyle == self.styles["unix"]:
+            self.__unixStyle(paint, event)
+        elif self.__pStyle == self.styles["sternzeit"]:
+            self.__sternzeitStyle(paint, event)
         else:
             raise AttributeError
 
@@ -176,6 +182,20 @@ class UhrAnzeige(QtGui.QWidget):
     def setBinary(self):
         self.setToolTip("<pre>  hhhh\nmmmmmm\nssssss<\pre>")
         self.__pStyle = self.styles["binary"]
+        self.on_redraw()
+
+    def setSternzeit(self):
+        self.setToolTip("Sternzeit nach StarTrek")
+        self.__pStyle = self.styles["sternzeit"]
+        self.__sternzeitSekunde = 1000/365/24/60/60
+        self.__sternzeitRef = time.mktime(time.strptime("01.01.2323", "%d.%m.%Y"))
+        self.__sternzeitNow = time.mktime(time.localtime()) - self.__iSeconds - self.__sternzeitRef
+        self.on_redraw()
+
+    def setUnix(self):
+        self.setToolTip("Sekunden seit der Epoche")
+        self.__pStyle = self.styles["unix"]
+        self.__unixNow = time.mktime(time.localtime()) - self.__iSeconds
         self.on_redraw()
 
     def setAnalogArc(self):
@@ -248,6 +268,23 @@ class UhrAnzeige(QtGui.QWidget):
         return "\n {0:05b}\n{1:06b}\n{2:06b}\n"\
        .format((x//self.sph)%self.hpd,(x//self.spm)%self.mph,x%self.spm)
 
+    def __unix(self, x):
+        """
+            Nimmt Sekunden entgegen und gibt einen String im Unix-
+            format zurück.
+        """
+        x = x + self.__unixNow
+        return "{0:010d}".format(int(x))
+
+    def __sternzeit(self, x):
+        """
+            Nimmt Sekunden entgegen und gibt einen String im StarTrek-
+            Sternzeit-format zurück. 1 Jahr = 1000 Sternzeiteinheiten
+            Sternzeit 0 = 01.01.2323 0:00
+        """
+        x = x + self.__sternzeitNow
+        return "{0: 5.2f}".format(x*self.__sternzeitSekunde)
+
     def __digitalStyle(self, paint, event):
         """
             Zeichenfunktion für Digitaluhr
@@ -260,6 +297,20 @@ class UhrAnzeige(QtGui.QWidget):
             Zeichenfunktion für Binäruhr
         """
         sZeit = self.__binary(self.__iSeconds)
+        paint.drawText(event.rect(), QtCore.Qt.AlignCenter, sZeit)
+
+    def __unixStyle(self, paint, event):
+        """
+            Zeichenfunktion für Unixzeitstempel
+        """
+        sZeit = self.__unix(self.__iSeconds)
+        paint.drawText(event.rect(), QtCore.Qt.AlignCenter, sZeit)
+
+    def __sternzeitStyle(self, paint, event):
+        """
+            Zeichenfunktion für StarTrek Sternzeit
+        """
+        sZeit = self.__sternzeit(self.__iSeconds)
         paint.drawText(event.rect(), QtCore.Qt.AlignCenter, sZeit)
 
     def __bahnhofStyle(self, paint, event):
