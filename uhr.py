@@ -13,6 +13,7 @@ from colorSelektor import *
 #TODO: Uhr in Fenster zentrieren
 #TODO: Regenbogen so ändern, dass er das Wellenlängen spektrum des Lichts durchläuft
 #TODO: Sternezeit
+#TODO: Unix Zeit
 
 class UhrWindow(QtGui.QMainWindow):
     styles           = {"last"         : 0,
@@ -217,21 +218,21 @@ class UhrWindow(QtGui.QMainWindow):
 
         iconSI = QtGui.QIcon('si.png')
         setSIAction = QtGui.QAction(iconSI, '&SI', self)
-        setSIAction.setShortcut('s')
         setSIAction.setStatusTip('SI')
         setSIAction.setCheckable(True)
         setSIAction.triggered.connect(self.setSI)
-        iconDezimal = QtGui.QIcon('dezimal.png')
-        setDezimalAction = QtGui.QAction(iconDezimal, '&Dezimal', self)
-        setDezimalAction.setShortcut('u')
-        setDezimalAction.setStatusTip('Dezimal')
-        setDezimalAction.setCheckable(True)
-        setDezimalAction.triggered.connect(self.setDezimal)
+        iconDezimalZeit = QtGui.QIcon('dezimal.png')
+        setDezimalZeitAction = QtGui.QAction(iconDezimalZeit, '&Dezimal', self)
+        setDezimalZeitAction.setStatusTip('Dezimal')
+        setDezimalZeitAction.setCheckable(True)
+        setDezimalZeitAction.triggered.connect(self.setDezimalZeit)
 
         uhrSI = QtGui.QActionGroup(self)
         setSIAction.setChecked(True)
         uhrSI.addAction(setSIAction)
-        uhrSI.addAction(setDezimalAction)
+        uhrSI.addAction(setDezimalZeitAction)
+        #~ uhrSI.addAction(setSternZeitAction)
+        #~ uhrSI.addAction(setUnixZeitAction)
 
         # Menüs
         menubar = QtGui.QMenuBar(self)
@@ -244,8 +245,8 @@ class UhrWindow(QtGui.QMainWindow):
         menuFkt.addSeparator()
         menuFkt.addAction(setSyncAction)
         menuFkt.addSeparator()
-        menuFkt.addAction(setDezimalAction)
         menuFkt.addAction(setSIAction)
+        menuFkt.addAction(setDezimalZeitAction)
         menuFkt.addSeparator()
         menuFkt.addAction(exitAction)
 
@@ -314,7 +315,7 @@ class UhrWindow(QtGui.QMainWindow):
         self.disp.setFreq(1)
         self.a.setFaktor("si")
 
-    def setDezimal(self):
+    def setDezimalZeit(self):
         self.disp.setFreq(1/0.864)
         self.a.setFaktor("dez")
 

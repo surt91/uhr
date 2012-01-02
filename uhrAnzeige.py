@@ -30,11 +30,13 @@ class UhrAnzeige(QtGui.QWidget):
 
     def setFaktor(self, t):
         if t == "si":
+            self.halberTagAufZiffernblatt = True
             self.spm = 60
             self.mph = 60
             self.sph = 3600
             self.hpd = 24
         elif t == "dez":
+            self.halberTagAufZiffernblatt = False
             self.spm = 100
             self.mph = 100
             self.sph = 10000
@@ -215,15 +217,19 @@ class UhrAnzeige(QtGui.QWidget):
             Erst Stunden, dann Mintuen, dann Sekunden Winkel
             Dabei sind die Winkel in Winkelmaß angegeben
         """
+        if self.halberTagAufZiffernblatt:
+            p = 2
+        else:
+            p = 1
         if self.__pTicken:
             s = (x%self.spm)/float(self.spm) * 360
             m = ((x//self.spm)%self.mph)/float(self.mph) * 360
-            h = ((x//self.sph)%self.hpd/2)/float(self.hpd)/2 * 360
+            h = ((x//self.sph)%(self.hpd/p))/float(self.hpd/p) * 360
             return h,m,s
         else:
             s = (x%self.spm)/float(self.spm) * 360
-            m = ((x//float(self.spm))%self.mph)/float(self.mph) * 360
-            h = ((x//float(self.sph))%self.hpd/2)/float(self.hpd)/2 * 360
+            m = ((x/float(self.spm))%self.mph)/float(self.mph) * 360
+            h = ((x/float(self.sph))%(self.hpd/p))/float(self.hpd/p) * 360
             return h,m,s
 
     def __digital(self, x):
