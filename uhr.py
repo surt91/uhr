@@ -21,7 +21,7 @@ class UhrWindow(QtGui.QMainWindow):
                         "analogArc"    : 3,
                         "analogBahnhof": 4,
                         "sternzeit"    : 5,
-                        "unix"     : 6}
+                        "unix"         : 6}
 
     bgStyles         = {"last"         : 0,
                         "plain"        : 1,

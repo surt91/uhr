@@ -187,7 +187,7 @@ class UhrAnzeige(QtGui.QWidget):
     def setSternzeit(self):
         self.setToolTip("Sternzeit nach StarTrek")
         self.__pStyle = self.styles["sternzeit"]
-        self.__sternzeitSekunde = 1000/365/24/60/60
+        self.__sternzeitSekunde = 1000/365.25/24/60/60
         self.__sternzeitRef = time.mktime(time.strptime("01.01.2323", "%d.%m.%Y"))
         self.__sternzeitNow = time.mktime(time.localtime()) - self.__iSeconds - self.__sternzeitRef
         self.on_redraw()
