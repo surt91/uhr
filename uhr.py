@@ -1,6 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+#
+#       Icons from Gnome 3
+#
+#       This program is free software; you can redistribute it and/or modify
+#       it under the terms of the GNU General Public License as published by
+#       the Free Software Foundation; either version 2 of the License, or
+#       (at your option) any later version.
+#
+#       This program is distributed in the hope that it will be useful,
+#       but WITHOUT ANY WARRANTY; without even the implied warranty of
+#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#       GNU General Public License for more details.
+#
+#       You should have received a copy of the GNU General Public License
+#       along with this program; if not, write to the Free Software
+#       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#       MA 02110-1301, USA.
+
+
 import sys
 
 from Uhrzeit       import *
@@ -9,7 +28,6 @@ from zahlSelektor  import *
 from colorSelektor import *
 
 #TODO: Dokumentation aller Funktionen
-#TODO: Icons
 #TODO: Uhr in Fenster zentrieren
 #TODO: Regenbogen so ändern, dass er das Wellenlängen spektrum des Lichts durchläuft
 #TODO: Sternezeit kontrollieren
@@ -49,7 +67,7 @@ class UhrWindow(QtGui.QMainWindow):
         # Fenstereigenschaften
         self.center()
         self.setWindowTitle('Uhr')
-        self.setWindowIcon(QtGui.QIcon('icon.png'))
+        self.setWindowIcon(QtGui.QIcon('icons/icon.png'))
 
         self.setFunc()
         self.setStyle()
@@ -122,30 +140,30 @@ class UhrWindow(QtGui.QMainWindow):
 
     def makeMenu(self):
         # Menüeinträge
-        iconBinary = QtGui.QIcon('binary.png')
+        iconBinary = QtGui.QIcon('icons/binary.png')
         setBinaryAction = QtGui.QAction(iconBinary, '&Binary', self)
         setBinaryAction.setShortcut('b')
         setBinaryAction.setStatusTip('Binär Uhr')
         setBinaryAction.setCheckable(True)
         setBinaryAction.triggered.connect(self.setBinary)
-        iconDigital = QtGui.QIcon('digital.png')
+        iconDigital = QtGui.QIcon('icons/digital.png')
         setDigitalAction = QtGui.QAction(iconDigital, '&Digital', self)
         setDigitalAction.setShortcut('d')
         setDigitalAction.setStatusTip('Digital Uhr')
         setDigitalAction.setCheckable(True)
         setDigitalAction.triggered.connect(self.setDigital)
-        iconUnix = QtGui.QIcon('unix.png')
+        iconUnix = QtGui.QIcon('icons/unix.png')
         setUnixAction = QtGui.QAction(iconUnix, '&Unix', self)
         setUnixAction.setStatusTip('Unix Uhr')
         setUnixAction.setCheckable(True)
         setUnixAction.triggered.connect(self.setUnix)
-        iconSternzeit = QtGui.QIcon('sternzeit.png')
+        iconSternzeit = QtGui.QIcon('icons/sternzeit.png')
         setSternzeitAction = QtGui.QAction(iconSternzeit, '&Sternzeit', self)
         setSternzeitAction.setStatusTip('Sternzeit Uhr')
         setSternzeitAction.setCheckable(True)
         setSternzeitAction.triggered.connect(self.setSternzeit)
 
-        iconAnalog = QtGui.QIcon('analog.png')
+        iconAnalog = QtGui.QIcon('icons/analog.png')
         setAnalogArcAction = QtGui.QAction(iconAnalog, '&Arc', self)
         setAnalogArcAction.setShortcut('a')
         setAnalogArcAction.setCheckable(True)
@@ -169,62 +187,64 @@ class UhrWindow(QtGui.QMainWindow):
         toggleTickenAction.setCheckable(True)
         toggleTickenAction.triggered.connect(self.toggleTicken)
 
-        iconColor = QtGui.QIcon('color.png')
+        iconColor = QtGui.QIcon('icons/color.png')
         setColorAction = QtGui.QAction(iconColor, '&Farbe', self)
         setColorAction.setShortcut('c')
         setColorAction.setCheckable(False)
         setColorAction.triggered.connect(self.setColor)
 
-        iconBGKein = QtGui.QIcon('BGKein.png')
+        iconBGKein = QtGui.QIcon('icons/BGKein.png')
         setBGKeinAction = QtGui.QAction(iconBGKein, 'keiner', self)
         setBGKeinAction.setCheckable(False)
         setBGKeinAction.triggered.connect(self.setBGKein)
 
-        iconBGPlain = QtGui.QIcon('BGPlain.png')
+        iconBGPlain = QtGui.QIcon('icons/BGPlain.png')
         setBGPlainAction = QtGui.QAction(iconBGPlain, 'einfarbig', self)
         setBGPlainAction.setCheckable(False)
         setBGPlainAction.triggered.connect(self.setBGPlain)
 
-        iconBGZahnrad = QtGui.QIcon('BGZahnrad.png')
+        iconBGZahnrad = QtGui.QIcon('icons/BGZahnrad.png')
         setBGZahnradAction = QtGui.QAction(iconBGZahnrad, 'Zahnrad', self)
         setBGZahnradAction.setCheckable(False)
         setBGZahnradAction.triggered.connect(self.setBGZahnrad)
 
-        iconBGSonne = QtGui.QIcon('BGSonne.png')
+        iconBGSonne = QtGui.QIcon('icons/BGSonne.png')
         setBGSonneAction = QtGui.QAction(iconBGSonne, 'Sonne', self)
         setBGSonneAction.setCheckable(False)
         setBGSonneAction.triggered.connect(self.setBGSonne)
 
-        iconStoppuhr = QtGui.QIcon('stoppuhr.png')
+        iconStoppuhr = QtGui.QIcon('icons/stoppuhr.png')
         setStoppuhrAction = QtGui.QAction(iconStoppuhr, '&Stoppuhr', self)
         setStoppuhrAction.setShortcut('s')
         setStoppuhrAction.setStatusTip('Stoppuhr')
         setStoppuhrAction.setCheckable(True)
         setStoppuhrAction.triggered.connect(self.setStoppuhr)
-        iconUhrzeit = QtGui.QIcon('uhrzeit.png')
+        iconUhrzeit = QtGui.QIcon('icons/uhrzeit.png')
         setUhrzeitAction = QtGui.QAction(iconUhrzeit, '&Uhr', self)
         setUhrzeitAction.setShortcut('u')
         setUhrzeitAction.setStatusTip('Uhrzeit')
         setUhrzeitAction.setCheckable(True)
         setUhrzeitAction.triggered.connect(self.setUhrzeit)
 
-        iconSync = QtGui.QIcon('sync.png')
+        iconSync = QtGui.QIcon('icons/sync.png')
         setSyncAction = QtGui.QAction(iconSync, '&synchronisiere', self)
         setSyncAction.setStatusTip('setzt die Uhrzeit auf die aktuelle Systemzeit und setzt die Frequenz auf 1Hz')
         setSyncAction.triggered.connect(self.setSync)
 
-        iconExit = QtGui.QIcon('exit.png')
+        iconExit = QtGui.QIcon('icons/exit.png')
         exitAction = QtGui.QAction(iconExit, '&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(QtGui.qApp.quit)
 
-        setFreqAction = QtGui.QAction('&Frequenz', self)
+        iconFreq = QtGui.QIcon('icons/freq.png')
+        setFreqAction = QtGui.QAction(iconFreq, '&Frequenz', self)
         setFreqAction.setShortcut('f')
         setFreqAction.setCheckable(False)
         setFreqAction.triggered.connect(self.setFreq)
 
-        toggleRegenbogenAction = QtGui.QAction('Regenbogenzeiger', self)
+        iconRegenbogen = QtGui.QIcon('icons/regenbogen.png')
+        toggleRegenbogenAction = QtGui.QAction(iconRegenbogen, 'Regenbogenzeiger', self)
         toggleRegenbogenAction.setShortcut('r')
         toggleRegenbogenAction.setCheckable(True)
         toggleRegenbogenAction.triggered.connect(self.toggleRegenbogen)
@@ -234,12 +254,12 @@ class UhrWindow(QtGui.QMainWindow):
         uhrFkt.addAction(setUhrzeitAction)
         uhrFkt.addAction(setStoppuhrAction)
 
-        iconSI = QtGui.QIcon('si.png')
+        iconSI = QtGui.QIcon('icons/si.png')
         setSIAction = QtGui.QAction(iconSI, '&SI', self)
         setSIAction.setStatusTip('SI')
         setSIAction.setCheckable(True)
         setSIAction.triggered.connect(self.setSI)
-        iconDezimalZeit = QtGui.QIcon('dezimal.png')
+        iconDezimalZeit = QtGui.QIcon('icons/dezimal.png')
         setDezimalZeitAction = QtGui.QAction(iconDezimalZeit, '&Dezimal', self)
         setDezimalZeitAction.setStatusTip('Dezimal')
         setDezimalZeitAction.setCheckable(True)
@@ -307,7 +327,7 @@ class UhrWindow(QtGui.QMainWindow):
         self.setStyle(self.styles["analogBahnhof"])
 
     def setStoppuhr(self):
-        setSIAction.setChecked(True)
+        #~ setSIAction.setChecked(True)
         self.func = self.funcs["stoppuhr"]
         self.disp = Stoppuhr()
         self.a = self.disp.getAnzeige()
@@ -316,7 +336,7 @@ class UhrWindow(QtGui.QMainWindow):
         self.setBGStyle()
 
     def setUhrzeit(self):
-        setSIAction.setChecked(True)
+        #~ setSIAction.setChecked(True)
         self.func = self.funcs["uhrzeit"]
         self.disp = Uhrzeit()
         self.a = self.disp.getAnzeige()
