@@ -1,1 +1,8 @@
 __pycache__/*
+
+/pkg
+/src
+PKGBUILD
+*.pkg.tar.xz
+uhr.sh
+
