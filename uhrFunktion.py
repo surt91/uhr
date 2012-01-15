@@ -8,6 +8,8 @@ class Uhr():
     def __init__(self):
         super().__init__()
 
+        self.__fPeriod = 1
+
         self.signalTick = QtCore.SIGNAL('signalTicked')
         self.connect(self, self.signalTick, self.on_update)
 
@@ -32,7 +34,7 @@ class Uhr():
             Wird von einem Timer aufgerufen; zählt die Sekunden hoch und
             stößt ein NeuZeichnen an
         """
-        self.__iSeconds += 1
+        self.__iSeconds += self.__fPeriod
         self.emit(self.signalTick)
 
     def setTime(self, x):
@@ -52,6 +54,19 @@ class Uhr():
             Setzt die die Frequenz in Hz
         """
         self.__fFreq = f
+        if self.__running:
+            self.stopUhr()
+            self.startUhr()
+        else:
+            self.stopUhr()
+        self.emit(self.signalTick)
+
+    def setSecLength(self, T):
+        """
+            Setzt die Sekundenlänge in SI Sekunden
+        """
+        self.__fFreq = 1/T
+        self.__fPeriod = T
         if self.__running:
             self.stopUhr()
             self.startUhr()

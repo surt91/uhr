@@ -13,6 +13,8 @@ from colorSelektor import *
 #TODO: Uhr in Fenster zentrieren
 #TODO: Regenbogen so ändern, dass er das Wellenlängen spektrum des Lichts durchläuft
 #TODO: Sternezeit kontrollieren
+#TODO: Schöneren Code für Dezimalzeit
+#TODO: Zahlen an analoge Uhr malen
 
 class UhrWindow(QtGui.QMainWindow):
     styles           = {"last"         : 0,
@@ -334,11 +336,11 @@ class UhrWindow(QtGui.QMainWindow):
         freqChooser.exec_()
 
     def setSI(self):
-        self.disp.setFreq(1)
+        self.disp.setSecLength(1)
         self.a.setFaktor("si")
 
     def setDezimalZeit(self):
-        self.disp.setFreq(1/0.864)
+        self.disp.setSecLength(0.864)
         self.a.setFaktor("dez")
 
     def setColor(self):

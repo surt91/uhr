@@ -37,12 +37,14 @@ class UhrAnzeige(QtGui.QWidget):
             self.mph = 60
             self.sph = 3600
             self.hpd = 24
+            self.sps = 1
         elif t == "dez":
             self.halberTagAufZiffernblatt = False
             self.spm = 100
             self.mph = 100
             self.sph = 10000
             self.hpd = 10
+            self.sps = 1/0.864
 
     def redraw(self, iSeconds):
         self.__iSeconds = iSeconds
@@ -241,6 +243,7 @@ class UhrAnzeige(QtGui.QWidget):
             p = 2
         else:
             p = 1
+        x = round(x*self.sps)
         if self.__pTicken:
             s = (x%self.spm)/float(self.spm) * 360
             m = ((x//self.spm)%self.mph)/float(self.mph) * 360
@@ -257,6 +260,7 @@ class UhrAnzeige(QtGui.QWidget):
             Nimmt Sekunden entgegen und gibt einen String im Digitaluhr-
             format zurück.
         """
+        x = round(x*self.sps)
         return "{0:02d}:{1:02d}:{2:02d}"\
        .format((x//self.sph)%self.hpd,(x//self.spm)%self.mph,x%self.spm)
 
@@ -265,6 +269,7 @@ class UhrAnzeige(QtGui.QWidget):
             Nimmt Sekunden entgegen und gibt einen String im Binäruhr-
             format zurück.
         """
+        x = round(x*self.sps)
         return "\n {0:05b}\n{1:06b}\n{2:06b}\n"\
        .format((x//self.sph)%self.hpd,(x//self.spm)%self.mph,x%self.spm)
 
