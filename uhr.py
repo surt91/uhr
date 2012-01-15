@@ -307,6 +307,7 @@ class UhrWindow(QtGui.QMainWindow):
         self.setStyle(self.styles["analogBahnhof"])
 
     def setStoppuhr(self):
+        setSIAction.setChecked(True)
         self.func = self.funcs["stoppuhr"]
         self.disp = Stoppuhr()
         self.a = self.disp.getAnzeige()
@@ -315,6 +316,7 @@ class UhrWindow(QtGui.QMainWindow):
         self.setBGStyle()
 
     def setUhrzeit(self):
+        setSIAction.setChecked(True)
         self.func = self.funcs["uhrzeit"]
         self.disp = Uhrzeit()
         self.a = self.disp.getAnzeige()
