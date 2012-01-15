@@ -30,9 +30,8 @@ from colorSelektor import *
 #TODO: Dokumentation aller Funktionen
 #TODO: Uhr in Fenster zentrieren
 #TODO: Regenbogen so ändern, dass er das Wellenlängen spektrum des Lichts durchläuft
-#TODO: Sternezeit kontrollieren
+#TODO: Sternzeit kontrollieren
 #TODO: Schöneren Code für Dezimalzeit
-#TODO: Zahlen an analoge Uhr malen
 
 class UhrWindow(QtGui.QMainWindow):
     styles           = {"last"         : 0,
@@ -49,14 +48,21 @@ class UhrWindow(QtGui.QMainWindow):
                         "sonne"        : 3,
                         "kein"         : 4}
 
+    skalaStyles      = {"last"         : 0,
+                        "arabisch"     : 1,
+                        "latein"       : 2,
+                        "plain"        : 3,
+                        "kein"         : 4}
+
     funcs            = {"uhrzeit"      : 0,
                         "stoppuhr"     : 1}
     def __init__(self):
         super().__init__()
 
-        self.style   = self.styles["digital"]
-        self.bgStyle = self.bgStyles["plain"]
-        self.func    = self.funcs["uhrzeit"]
+        self.style      = self.styles["digital"]
+        self.bgStyle    = self.bgStyles["plain"]
+        self.skalaStyle = self.skalaStyles["plain"]
+        self.func       = self.funcs["uhrzeit"]
 
         self.ticken = False
         self.regenbogen = False
@@ -72,6 +78,7 @@ class UhrWindow(QtGui.QMainWindow):
         self.setFunc()
         self.setStyle()
         self.setBGStyle()
+        self.setSkalaStyle()
         self.makeMenu()
 
         self.show()
@@ -121,6 +128,28 @@ class UhrWindow(QtGui.QMainWindow):
             self.a.setBGSonne()
         elif self.bgStyle == self.bgStyles["kein"]:
             self.a.setBGKein()
+        else:
+            raise AttributeError
+
+    def setSkalaStyle(self, style = skalaStyles["last"]):
+        try:
+            x = self.a.skalaStyles
+        except AttributeError:
+            self.a.skalaStyles = self.skalaStyles
+
+        if style == self.skalaStyles["last"]:
+            style = self.skalaStyle
+        else:
+            self.skalaStyle = style
+
+        if self.skalaStyle == self.skalaStyles["plain"]:
+            self.a.setSkalaPlain()
+        elif self.skalaStyle == self.skalaStyles["kein"]:
+            self.a.setSkalaKein()
+        elif self.skalaStyle == self.skalaStyles["latein"]:
+            self.a.setSkalaLatein()
+        elif self.skalaStyle == self.skalaStyles["arabisch"]:
+            self.a.setSkalaArabisch()
         else:
             raise AttributeError
 
@@ -213,6 +242,26 @@ class UhrWindow(QtGui.QMainWindow):
         setBGSonneAction.setCheckable(False)
         setBGSonneAction.triggered.connect(self.setBGSonne)
 
+        iconSkalaKein = QtGui.QIcon('icons/skalaKein.png')
+        setSkalaKeinAction = QtGui.QAction(iconSkalaKein, 'keine', self)
+        setSkalaKeinAction.setCheckable(False)
+        setSkalaKeinAction.triggered.connect(self.setSkalaKein)
+
+        iconSkalaPlain = QtGui.QIcon('icons/skalaPlain.png')
+        setSkalaPlainAction = QtGui.QAction(iconSkalaPlain, 'ohne Zahlen', self)
+        setSkalaPlainAction.setCheckable(False)
+        setSkalaPlainAction.triggered.connect(self.setSkalaPlain)
+
+        iconSkalaArabisch = QtGui.QIcon('icons/skalaArabisch.png')
+        setSkalaArabischAction = QtGui.QAction(iconSkalaArabisch, 'Arabisch', self)
+        setSkalaArabischAction.setCheckable(False)
+        setSkalaArabischAction.triggered.connect(self.setSkalaArabisch)
+
+        iconSkalaLatein = QtGui.QIcon('icons/SkalaLatein.png')
+        setSkalaLateinAction = QtGui.QAction(iconSkalaLatein, 'Latein', self)
+        setSkalaLateinAction.setCheckable(False)
+        setSkalaLateinAction.triggered.connect(self.setSkalaLatein)
+
         iconStoppuhr = QtGui.QIcon('icons/stoppuhr.png')
         setStoppuhrAction = QtGui.QAction(iconStoppuhr, '&Stoppuhr', self)
         setStoppuhrAction.setShortcut('s')
@@ -296,10 +345,17 @@ class UhrWindow(QtGui.QMainWindow):
         menuAna.addSeparator()
         menuAna.addAction(toggleTickenAction)
         menuAna.addSeparator()
-        menuAna.addAction(setBGKeinAction)
-        menuAna.addAction(setBGPlainAction)
-        menuAna.addAction(setBGZahnradAction)
-        menuAna.addAction(setBGSonneAction)
+        menuAnaH = menuAna.addMenu("Hintergrund")
+        menuAnaH.addAction(setBGKeinAction)
+        menuAnaH.addAction(setBGPlainAction)
+        menuAnaH.addAction(setBGZahnradAction)
+        menuAnaH.addAction(setBGSonneAction)
+        menuAna.addSeparator()
+        menuAnaS = menuAna.addMenu("Skala")
+        menuAnaS.addAction(setSkalaKeinAction)
+        menuAnaS.addAction(setSkalaPlainAction)
+        menuAnaS.addAction(setSkalaArabischAction)
+        menuAnaS.addAction(setSkalaLateinAction)
         menuDar.addSeparator()
         menuDar.addAction(setColorAction)
 
@@ -381,6 +437,18 @@ class UhrWindow(QtGui.QMainWindow):
 
     def setBGSonne(self):
         self.setBGStyle(self.bgStyles["sonne"])
+
+    def setSkalaKein(self):
+        self.setSkalaStyle(self.skalaStyles["kein"])
+
+    def setSkalaPlain(self):
+        self.setSkalaStyle(self.skalaStyles["plain"])
+
+    def setSkalaLatein(self):
+        self.setSkalaStyle(self.skalaStyles["latein"])
+
+    def setSkalaArabisch(self):
+        self.setSkalaStyle(self.skalaStyles["arabisch"])
 
     def setSync(self):
         self.disp.setTimeNow()

@@ -133,9 +133,10 @@ class UhrAnzeige(QtGui.QWidget):
         self.__margin = self.__size / 100
         self.__bereich = QtCore.QRect(self.__margin, self.__margin, self.__size - 2*self.__margin, self.__size - 2*self.__margin)
 
+        self.__fontSize = self.__size/7
         paint = QtGui.QPainter(self)
         paint.setPen(self.__textColor)
-        paint.setFont(QtGui.QFont('Monospace', self.__size/7))
+        paint.setFont(QtGui.QFont('Monospace', self.__fontSize))
         paint.setRenderHint(QtGui.QPainter.Antialiasing)
         paint.eraseRect(self.geometry())
         self.__drawZeit(paint, event)
@@ -173,6 +174,22 @@ class UhrAnzeige(QtGui.QWidget):
             self.__bgSonneStyle(paint, event)
         elif self.__pBGStyle == self.bgStyles["kein"]:
             self.__bgKeinStyle(paint, event)
+        else:
+            raise AttributeError
+
+    def __drawSkala(self, paint, event):
+        """
+            Überprüft das pBGStyle Property, welcher Style gewählt ist und
+            startet die entsprechende Zeichenfunktion
+        """
+        if self.__pSkalaStyle == self.skalaStyles["kein"]:
+            self.__skalaKeinStyle(paint, event)
+        elif self.__pSkalaStyle == self.skalaStyles["plain"]:
+            self.__skalaPlainStyle(paint, event)
+        elif self.__pSkalaStyle == self.skalaStyles["arabisch"]:
+            self.__skalaArabischStyle(paint, event)
+        elif self.__pSkalaStyle == self.skalaStyles["latein"]:
+            self.__skalaLateinStyle(paint, event)
         else:
             raise AttributeError
 
@@ -231,6 +248,22 @@ class UhrAnzeige(QtGui.QWidget):
 
     def setBGKein(self):
         self.__pBGStyle = self.bgStyles["kein"]
+        self.on_redraw()
+
+    def setSkalaPlain(self):
+        self.__pSkalaStyle = self.skalaStyles["plain"]
+        self.on_redraw()
+
+    def setSkalaLatein(self):
+        self.__pSkalaStyle = self.skalaStyles["latein"]
+        self.on_redraw()
+
+    def setSkalaArabisch(self):
+        self.__pSkalaStyle = self.skalaStyles["arabisch"]
+        self.on_redraw()
+
+    def setSkalaKein(self):
+        self.__pSkalaStyle = self.skalaStyles["kein"]
         self.on_redraw()
 
     def __analog(self, x):
@@ -323,6 +356,7 @@ class UhrAnzeige(QtGui.QWidget):
             Zeichenfunktion für Bahnhofsuhr
         """
         self.__drawBackground(paint, event)
+        self.__drawSkala(paint, event)
 
         h,m,s = self.__analog(self.__iSeconds)
 
@@ -384,6 +418,7 @@ class UhrAnzeige(QtGui.QWidget):
             Zeichenfunktion für minimalistische "Winkeluhr"
         """
         self.__drawBackground(paint, event)
+        self.__drawSkala(paint, event)
 
         h,m,s = self.__analog(self.__iSeconds)
         s *= 16
@@ -503,4 +538,66 @@ class UhrAnzeige(QtGui.QWidget):
             paint.drawChord(boundingBox2, 0, 16 * 360)
 
     def __bgKeinStyle(self, paint, event):
+        pass
+
+    def __skalaPlainStyle(self, paint, event, skFkt = None):
+        if self.halberTagAufZiffernblatt:
+            p = 2
+        else:
+            p = 1
+
+        mitte = QtCore.QPointF(self.__bereich.center())
+        lange = self.__size/2 - self.__margin
+        nullUhr = QtCore.QPointF(lange,0)
+        dicke = self.__size/75
+        stiftR = QtGui.QPen()
+        stiftR.setColor(self.__randColor)
+        stiftR.setWidthF(dicke)
+
+        paint.setBrush(QtGui.QBrush(QtCore.Qt.SolidPattern))
+
+        paint.setPen(stiftR)
+        paint.setBrush(self.__bgColor)
+        for i in range(1, int(self.hpd/p)+1):
+            s = float(i)/(self.hpd/p)*360
+
+            mark = QtCore.QLineF(mitte, nullUhr)
+            mark.setAngle(-s + 90)
+            mark.setLength(lange - dicke/2)
+            p1 = mark.p2()
+            p2 = mark.p1()
+            mark.setP1(p1)
+            mark.setP2(p2)
+            mark.setLength(0.15 * lange - self.__size/30)
+
+            paint.drawLine(mark)
+
+            mark.setLength(mark.length()+self.__fontSize*2/3)
+            if skFkt != None:
+                x = mark.p2().x()
+                y = mark.p2().y()
+                n = skFkt(None, i, True)
+                fontSize = self.__fontSize / 2
+                paint.setFont(QtGui.QFont('Monospace', fontSize))
+                pt = QtCore.QPointF(x-fontSize*n/2+self.__margin,y+fontSize/2)
+
+                skFkt(pt, i)
+
+    def __skalaArabischStyle(self, paint, event):
+        def f(p, i, dry = False):
+            zeichen = [str(n) for n in range(0,13)]
+            if dry:
+                return len(zeichen[i])
+            paint.drawText(p,zeichen[i])
+        self.__skalaPlainStyle(paint, event, f)
+
+    def __skalaLateinStyle(self, paint, event):
+        def f(p, i, dry = False):
+            zeichen = ["0","I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"]
+            if dry:
+                return len(zeichen[i])
+            paint.drawText(p,zeichen[i])
+        self.__skalaPlainStyle(paint, event, f)
+
+    def __skalaKeinStyle(self, paint, event):
         pass
